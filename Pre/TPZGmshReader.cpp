@@ -33,6 +33,8 @@
 #include "TPZGeoElement.h"
 #include "TPZRefPattern.h"
 #include "tpzgeoelrefpattern.h"
+#include "pzvec_extras.h"
+#include "TPZParallelUtils.h"
 #include <cassert>
 
 TPZGmshReader::TPZGmshReader() {
@@ -438,6 +440,7 @@ void TPZGmshReader::ReadPeriodic4(std::istream &read)
     std::string str_end;
     read >> str_end;
     assert(str_end == "$EndPeriodic" || str_end == "$EndPeriodic\r");
+    std::cout << "Finished reading periodic elements, setting periodicity..."<< std::endl;
     /*now we need to find the correspondence between periodic elements
      we will both:
     - create the periodic_els map that relates the ids of dependent/independent
@@ -446,8 +449,9 @@ void TPZGmshReader::ReadPeriodic4(std::istream &read)
     in the independent el.
     this ensures that they will have the same orientation
     */
+    
     SetPeriodicElements(m_gmesh, entity_periodic_nodes, periodic_entities);
-
+    std::cout<<"Finished setting periodicity!"<<std::endl;
 }
 
 
@@ -514,12 +518,6 @@ TPZGeoMesh * TPZGmshReader::GeometricGmshMesh4(const std::string &file_name, TPZ
     m_gmesh = gmesh;
     int max_dimension = 0;
 
-    // periodic nodes indexed by dimension of containing entity
-    TPZVec<std::map<int64_t, std::map<int64_t, int64_t>>> entity_periodic_nodes(
-        4);
-    // periodic entities indexed by dimension
-    TPZVec<std::map<int64_t, int64_t>> periodic_entities(4);
-
     // reading a general mesh information by filter
     std::ifstream read(file_name.c_str());
     if (!read) {
@@ -543,16 +541,6 @@ TPZGeoMesh * TPZGmshReader::GeometricGmshMesh4(const std::string &file_name, TPZ
     std::cout << "Number of elements " << gmesh->NElements() << std::endl;
     gmesh->BuildConnectivity();
     std::cout << "Geometric Mesh Connectivity -> done!" << std::endl;
-
-    /*now we need to find the correspondence between periodic elements
-     we will both:
-    - create the periodic_els map that relates the ids of dependent/independent
-    element
-    - change the node ids of the dependent el so as to match the ones
-    in the independent el.
-    this ensures that they will have the same orientation
-    */
-    SetPeriodicElements(gmesh, entity_periodic_nodes, periodic_entities);
     return gmesh;
     
 }
@@ -1358,181 +1346,142 @@ bool TPZGmshReader::InsertElement(TPZGeoMesh * gmesh, std::ifstream & line){
 
 
 void TPZGmshReader::SetPeriodicElements(
-    TPZGeoMesh *gmesh,
-    const TPZVec<std::map<int64_t, std::map<int64_t, int64_t>>>
-        &entity_periodic_nodes,
-    const TPZVec<std::map<int64_t, int64_t>> &periodic_entities) {
-  const auto max_dimension = gmesh->Dimension();
-  // associates ids of periodic regions
-  std::map<int64_t, int64_t> periodic_physical_ids;
-  /**for a given region, all the periodic nodes.
-     indexed by the dimension of the physical region.*/
-  std::vector<std::map<int64_t, std::map<int64_t, int64_t>>>
-      periodic_nodes_by_physical_ids(4);
-  for (int idim = 0; idim < max_dimension; idim++) {
-    // just to make it more readable
-    auto &physical_entity_map = m_dim_entity_tag_and_physical_tag[idim];
-    for (auto [deptag, indeptag] : periodic_entities[idim]) {
-      const int ndepid = physical_entity_map[deptag].size();
-      const int nindepid = physical_entity_map[indeptag].size();
-      if(ndepid != nindepid){
-          PZError<<__PRETTY_FUNCTION__
-                 <<"number of ids is different for periodic entities:\n"
-                 <<"entity "<<deptag<<" n ids "<<ndepid<<'\n'
-                 <<"entity "<<indeptag<<" n ids "<<nindepid<<std::endl;
-          DebugStop();
-      }
-      // we only care if there is an associated physical id
-      for(int id_count=0;id_count < ndepid;id_count++){
-        const int64_t depid = physical_entity_map[deptag][id_count];
-        const int64_t indepid = physical_entity_map[indeptag][id_count];
-        periodic_physical_ids[depid] = indepid;
-        const auto periodic_nodes = entity_periodic_nodes[idim][deptag];
-        for (auto [dep, indep] : periodic_nodes) {
-          periodic_nodes_by_physical_ids[idim][depid][dep] = indep;
-        }
-      }
-    }
-  }
+  TPZGeoMesh *gmesh,
+  const TPZVec<std::map<int64_t, std::map<int64_t, int64_t>>>
+  &entity_periodic_nodes,
+  const TPZVec<std::map<int64_t, int64_t>> &periodic_entities) {
 
-  /*
-    now we just want to change the ids of the dependent nodes
-    so as to match the ordering of the independent nodes
-  */
-
-  //contain all periodic nodes
-  std::vector<std::pair<int64_t,int64_t>> all_per_nodes;
-
-  for(auto all_periodic_ids : periodic_nodes_by_physical_ids){
-      for(auto &[_,periodic_ids] : all_periodic_ids){
-          for(auto &[dep_node,indep_node] : periodic_ids){
-              all_per_nodes.push_back({dep_node,indep_node});
-          }
-      }
-  }
-
-  std::set<int64_t> dep_ids, indep_ids;
-  for(auto [dep,indep] : all_per_nodes){
-      dep_ids.insert(dep);
-      indep_ids.insert(indep);
-  }
-
-  std::set<int64_t> common_ids;
-  std::set_intersection(dep_ids.begin(),dep_ids.end(),
-                        indep_ids.begin(),indep_ids.end(),
-                        std::inserter(common_ids,common_ids.begin()));
-  if(common_ids.size()){
-    PZError<<__PRETTY_FUNCTION__
-           <<"\nwe still not support nodes that are both dependent and independent"
-           <<"\nAborting..."<<std::endl;
-    DebugStop();
-  }
-  const int n_nodes = dep_ids.size();
-  auto d_i = dep_ids.begin();
-  auto i_i = indep_ids.begin();
-  for(auto i = 0; i < n_nodes; i++){
-      auto dep_node = all_per_nodes[i].first;
-      auto indep_node = all_per_nodes[i].second;
-      m_gmesh->NodeVec()[dep_node].SetNodeId(*d_i);
-      m_gmesh->NodeVec()[indep_node].SetNodeId(*i_i);
-      d_i++;
-      i_i++;
-  }
-  
-  /**
-     now we want to map periodic ELEMENTS
-     IMPORTANT: since we have changed the node ids,
-     now we no longer have index == id
-     */
-  for (int idim = 0; idim < max_dimension; idim++) {
-    for (auto [depmatid, periodic_nodes] : periodic_nodes_by_physical_ids[idim]) {
-      if(periodic_physical_ids.find(depmatid) == periodic_physical_ids.end()){
-        PZError<<__PRETTY_FUNCTION__
-               <<"\nCould not find "<<depmatid<<" in periodic physical ids:\n";
-        for(auto id : periodic_physical_ids){
-          std::cout<<' '<<id;
-        }
-        std::cout<<std::endl;
-        DebugStop();
-      }
-      
-      //material id of independent region
-      const auto indepmatid = periodic_physical_ids[depmatid];
-      int count = 0;
-      for (auto depel : gmesh->ElementVec()) {
-        if (depel->MaterialId() == depmatid) {
-          const auto nnodes = depel->NNodes();
-          const auto dep_type = depel->Type();
-          //mapped node INDICES, not IDENTIFIERS
-          std::vector<int64_t> mapped_nodes(nnodes);
-          count++;
-          for (auto in = 0; in < nnodes; in++) {
-            const auto depnode = depel->NodeIndex(in);
-            if(periodic_nodes.find(depnode) == periodic_nodes.end()){
+    
+    const auto max_dimension = gmesh->Dimension();
+    // associates ids of periodic regions
+    std::map<int64_t, int64_t> periodic_physical_ids;
+    /**for a given region, all the periodic nodes.
+       indexed by the dimension of the physical region.*/
+    constexpr int big_alloc{20000};
+    
+    TPZManVector<int64_t, big_alloc> dep_ids, indep_ids;
+    std::map<int64_t,int64_t> periodic_nodes_map;
+    
+    for (int idim = 0; idim < max_dimension; idim++) {
+        // just to make it more readable
+        auto &physical_entity_map = m_dim_entity_tag_and_physical_tag[idim];
+        for (const auto &[deptag, indeptag] : periodic_entities[idim]) {
+            const int ndepid = physical_entity_map[deptag].size();
+            const int nindepid = physical_entity_map[indeptag].size();
+            if(ndepid != nindepid){
                 PZError<<__PRETTY_FUNCTION__
-                       <<"\nnode "<<depnode<<" was not found in periodic nodes"
-                       <<" of mat id "<<depmatid<<":\n";
-                for(auto node : periodic_nodes){
-                  std::cout<<' '<<node;
-                }
-                std::cout<<std::endl;
+                       <<"number of ids is different for periodic entities:\n"
+                       <<"entity "<<deptag<<" n ids "<<ndepid<<'\n'
+                       <<"entity "<<indeptag<<" n ids "<<nindepid<<std::endl;
                 DebugStop();
             }
-            mapped_nodes[in] = periodic_nodes.at(depnode);
-          }
-          for (auto indepel : gmesh->ElementVec()) {
-            const int indep_type = indepel->Type();
-            const bool sametype = indep_type == dep_type;
-            if (indepel->MaterialId() == indepmatid && sametype) {
-              bool samenodes = true;
-              for (auto in = 0; in < nnodes; in++) {
-                const auto indepnode = indepel->NodeIndex(in);
+            // we only care if there is an associated physical id
+            for(int id_count=0;id_count < ndepid;id_count++){
+                const int64_t depid = physical_entity_map[deptag][id_count];
+                const int64_t indepid = physical_entity_map[indeptag][id_count];
+                periodic_physical_ids[depid] = indepid;
+                const auto periodic_nodes = entity_periodic_nodes[idim][deptag];
+                for (auto [dep, indep] : periodic_nodes) {
+                    dep_ids.push_back(dep);
+                    indep_ids.push_back(indep);
+                    periodic_nodes_map[dep]=indep;
+                }
+            }
+        }
+    }
+    
+    /*
+      now we just want to change the ids of the dependent nodes
+      so as to match the ordering of the independent nodes
+    */
+
+    //contain all periodic nodes
+    {
+        RemoveDuplicates(dep_ids);
+        RemoveDuplicates(indep_ids);
+  
+        TPZManVector<int64_t,300> common_ids;
+        std::set_intersection(dep_ids.begin(),dep_ids.end(),
+                              indep_ids.begin(),indep_ids.end(),
+                              std::inserter(common_ids,common_ids.begin()));
+        if(common_ids.size()){
+            PZError<<__PRETTY_FUNCTION__
+                   <<"\nwe still not support nodes that are both dependent and independent"
+                   <<"\nAborting..."<<std::endl;
+            DebugStop();
+        }
+        const int n_nodes = dep_ids.size();
+        auto d_i = dep_ids.begin();
+        auto i_i = indep_ids.begin();
+        for(const auto &[dep_node,indep_node] : periodic_nodes_map){
+            m_gmesh->NodeVec()[dep_node].SetNodeId(*d_i++);
+            m_gmesh->NodeVec()[indep_node].SetNodeId(*i_i++);
+        }
+    }
+    /**
+       now we want to map periodic ELEMENTS
+       IMPORTANT: since we have changed the node ids,
+       now we no longer have index == id
+    */
+    for (auto depel : gmesh->ElementVec()) {
+        const auto depmatid = depel->MaterialId();
+        //not a dependent periodic mat
+        if (periodic_physical_ids.find(depmatid) ==
+            periodic_physical_ids.end()){continue;}        
+        //we have found a dependent el
+        const auto nnodes = depel->NNodes();
+        const auto nsides = depel->NSides();
+        const auto dep_type = depel->Type();
+        constexpr int max_nnodes{8};
+        TPZManVector<int64_t,max_nnodes> mapped_nodes(nnodes);
+        for (auto in = 0; in < nnodes; in++) {
+            const auto depnode = depel->NodeIndex(in);
+            mapped_nodes[in] = periodic_nodes_map.at(depnode);
+        }
+        const auto indepmatid = periodic_physical_ids[depmatid];
+        TPZGeoEl* indepel{nullptr};
+        const int nelem = gmesh->ElementVec().NElements();
+        for(auto gel : gmesh->ElementVec()){
+            if(indepel){break;}
+            if (gel->MaterialId() != indepmatid ||
+                gel->Type() != dep_type) {continue;}
+            
+            TPZManVector<int64_t,max_nnodes> indepnodes(nnodes);
+            gel->GetNodeIndices(indepnodes);
+            bool samenodes = true;
+            for (auto in = 0; in < nnodes && samenodes; in++) {
+                const auto indepnode = indepnodes[in];
                 const bool hasnode =
                     std::find(mapped_nodes.begin(), mapped_nodes.end(),
                               indepnode) != mapped_nodes.end();
-                samenodes = samenodes & hasnode;
-              }
-              if (samenodes) {
-                m_periodic_els[depel->Id()] = indepel->Id();
-#ifdef PZDEBUG
-                const int dim = depel->Dimension();
-                TPZManVector<REAL,3> qsi(dim,0);
-                TPZFNMatrix<9,REAL> jac, jacinv;
-                REAL detjac;
-                TPZFNMatrix<9,REAL> dep_axes, indep_axes,res;
-                depel->Jacobian(qsi,jac,dep_axes,detjac,jacinv);
-                indepel->Jacobian(qsi,jac,indep_axes,detjac,jacinv);
-                res = dep_axes;
-                res -= indep_axes;
-                constexpr REAL tol{1e-8};
-                const int nr = res.Rows();
-                const int nc = res.Cols();
-                for(int ir = 0; ir < nr; ir++){
-                    for(int ic = 0; ic < nc; ic++){
-                        if(res.GetVal(ir,ic) > tol){
-                            PZError<<__PRETTY_FUNCTION__
-                                   <<"\nError in periodic elements orientation!"
-                                   <<std::endl;
-                            dep_axes.Print("dep axes",PZError);
-                            indep_axes.Print("indep axes",PZError);
-                            DebugStop();
-                        }
-                    }
-                }
-#endif
-                // useful for checking periodicity
-                // for (auto in = 0; in < nnodes; in++) {
-                //     std::cout<<"dep "<<depel->NodeIndex(in)
-                //              <<" indep "<<indepel->NodeIndex(in)
-                //              <<" map(dep) "<<periodic_nodes.at(depel->NodeIndex(in))
-                //              <<std::endl;
-                // }
-                
-              }
+                samenodes = samenodes && hasnode;
             }
-          }
+            if (!samenodes) {continue;}
+            indepel=gel;
         }
-      }
+        m_periodic_els[depel->Id()] = indepel->Id();
+        //now we check for node ordering
+        TPZManVector<int64_t,max_nnodes> indepnodes(nnodes);
+        indepel->GetNodeIndices(indepnodes);
+        bool sameorient{true};
+        for (auto in = 0; in < nnodes && sameorient; in++) {
+            if(indepnodes[in] != mapped_nodes[in]){
+                sameorient=false;
+            }
+        }
+        //nothing to else be done here
+        if(sameorient){continue;}
+        /*
+          WARNING:
+          right now, SetPeriodic is called before BuildConnectivity.
+          should this change in the future, changing node ordering is
+          not enough, connectivity should be changed as well.
+          For this purpose, TPZChangeEl::ChangeNodeOrdering
+          should be sued.
+        */
+        for (auto in = 0; in < nnodes; in++) {
+            const auto mapped = mapped_nodes[in];
+            indepel->SetNodeIndex(in, mapped);
+        }
     }
-  }
 }
