@@ -79,6 +79,14 @@ public:
        @param neighs [in] vector of neighbours
      */
     static void RestoreNeighbours(TPZGeoEl* gel, TPZVec<TPZGeoElSide> &neighs);
+
+    /**
+       @brief Change ordering of element's nodes and adjust connectivity
+       @param gel [in] given geometric element
+       @param ordering [in] element nodes in the new ordering
+       @note NOT YET TESTED!!!!
+     */
+    static void ChangeNodeOrdering(TPZGeoEl *gel, const TPZVec<int64_t> & mapped_nodes);
 };
 
 #endif

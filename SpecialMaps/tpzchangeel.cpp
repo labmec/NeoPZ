@@ -802,3 +802,135 @@ void TPZChangeEl::RestoreNeighbours(TPZGeoEl* gel, TPZVec<TPZGeoElSide> &neighs)
         }
     }
 }
+
+void TPZChangeEl::ChangeNodeOrdering(TPZGeoEl *gel, const TPZVec<int64_t> & mapped_nodes)
+{
+    //for cube nsides=27
+    constexpr int max_nsides{27};
+    //for cube nnodes = 8
+    constexpr int max_nnodes{8};
+    const int nnodes = gel->NNodes();
+    const int nsides = gel->NSides();
+
+    TPZManVector<int64_t,8> oldnodes(nnodes);
+    gel->GetNodeIndices(oldnodes);
+    //first we check if the new ordering is the same as the old one
+    bool is_same_ordering{true};
+    for(int in = 0; in < nnodes && is_same_ordering; in++){
+        if(oldnodes[in] != mapped_nodes[in]){
+            is_same_ordering = false;
+        }
+    }
+    if(is_same_ordering){
+        //nothing to be done here
+        return;
+    }
+    
+    //we need to permute the nodes, but before we store all the neighbours
+    TPZManVector<TPZGeoElSide,max_nsides> neighs(gel->NSides());
+    TPZChangeEl::StoreNeighbours(gel,neighs);
+    std::map<int64_t,int64_t> nodemap;
+    for (auto in = 0; in < nnodes; in++) {
+        const auto mapped = mapped_nodes[in];
+        nodemap[mapped] = oldnodes[in];
+        gel->SetNodeIndex(in, mapped);
+    }
+    //now we reset the connetivities
+    gel->RemoveConnectivities();
+    //i dont think we will have more than 50 neighbours per node
+    constexpr int big_neigh_number{50};
+                    
+    /*
+      we need to:
+      1. restore neighbours for all vertices
+      2. find all ELEMENTS neighbouring a given vertice
+      3. for a given side of dim > 0, we can find one neighbour
+      as the intersection of the neighbours of all its nodes
+    */
+    TPZManVector<TPZManVector<TPZGeoEl*,big_neigh_number>,max_nnodes> all_node_neighs(nnodes);
+                    
+    for (auto in = 0; in < nnodes; in++) {
+        TPZGeoElSide gelside(gel,in);
+        auto &neigh = neighs[nodemap[in]];
+        if(neigh.Exists()){
+            neigh.SetConnectivity(gelside);
+        }else{
+            gel->SetNeighbour(in,gelside);
+        }
+        //now we store all the elements neighbouring this node
+        TPZGeoElSide myneigh = gelside.Neighbour();
+        while(myneigh!=gelside){
+            all_node_neighs[in].push_back(myneigh.Element());
+            myneigh = myneigh.Neighbour();
+        }
+        //needs to be done for set intersection
+        std::sort(all_node_neighs[in].begin(),all_node_neighs[in].end());
+    }
+
+                    
+    //for quad side:
+    constexpr int max_nsidenodes{4};
+    //side neigh is the intersection between all the neighbours of the nodes
+    for(auto is = nnodes; is < nsides-1; is++){
+        const auto nsidenodes = gel->NSideNodes(is);
+        TPZManVector<int64_t,max_nsidenodes> sidenodes(nsidenodes);
+        for(auto in = 0; in < nsidenodes; in++){
+            sidenodes[in] = gel->SideNodeIndex(is,in);
+        }
+        /*we need to ensure that neigh_intersec and aux will always be able
+          to fit the data in their static memory
+          so set intersection will work properly*/
+        TPZManVector<TPZGeoEl*,max_nsidenodes*max_nnodes> neigh_intersec, aux;
+        const auto n1 = sidenodes[0];
+        const auto n2 = sidenodes[1];
+        auto it = std::set_intersection(all_node_neighs[n1].begin(),all_node_neighs[n1].end(),
+                                        all_node_neighs[n2].begin(),all_node_neighs[n2].end(),
+                                        neigh_intersec.begin());
+        //now we know its size
+        neigh_intersec.Resize(it-neigh_intersec.begin());
+        for(auto in = 2; in < nsidenodes; in++){
+            const auto n = sidenodes[in];
+            auto it = std::set_intersection(all_node_neighs[n].begin(),all_node_neighs[n].end(),
+                                            neigh_intersec.begin(),neigh_intersec.end(),
+                                            aux.begin());
+            aux.Resize(it-aux.begin());
+            neigh_intersec = aux;
+        }
+        //there are no neighbours
+        if(neigh_intersec.size()==0){
+            TPZGeoElSide gelside(gel,is);
+            gel->SetNeighbour(is,gelside);
+            break;
+        }
+        //we can take the first element and insert ourselves in the connectivity list
+        auto neigh_el = neigh_intersec[0];
+        //we need to find the neighbouring el side
+        const auto sidedim = gel->SideDimension(is);
+        const auto fsideneigh = neigh_el->FirstSide(sidedim);
+        const auto nsideneigh = neigh_el->NSides(sidedim);
+        int neigh_is = fsideneigh;
+        for(; neigh_is < fsideneigh+nsideneigh; neigh_is++){
+            const auto nneighsidenodes = neigh_el->NSideNodes(neigh_is);
+            //if they dont match, it is not the correct side so it wont go in the for loop
+            bool found = nneighsidenodes && nsidenodes;
+            for(auto in = 0; in < nsidenodes && found; in++){
+                const auto node = neigh_el->SideNodeIndex(neigh_is,in);
+                if(std::find(sidenodes.begin(),sidenodes.end(),node) == sidenodes.end()){
+                    found = false;
+                }
+            }
+            if(found){break;}
+        }
+        //could not find neighbouring side!!!
+        if(neigh_is==fsideneigh+nsideneigh){
+            DebugStop();
+        }
+        TPZGeoElSide neigh_gelside (neigh_el,neigh_is);
+        TPZGeoElSide gelside(gel,is);
+        neigh_gelside.SetConnectivity(gelside);
+    }
+
+    //now we set the last side
+    TPZGeoElSide gelside(gel,nsides-1);
+    gel->SetNeighbour(nsides-1,gelside);
+}
