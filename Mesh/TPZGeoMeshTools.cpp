@@ -559,6 +559,84 @@ TPZGeoEl * TPZGeoMeshTools::FindCloseElement(TPZGeoMesh* gmesh, TPZVec<REAL> &x,
     return gel;
 }
 
+void
+TPZGeoMeshTools::FindPeriodicElements(
+  TPZGeoMesh *gmesh,
+  const TPZVec<int> &dep_ids, const TPZVec<int> &indep_ids,
+  const TPZVec<TPZAutoPointer<std::map<int64_t,int64_t>>> &periodic_nodes,
+  TPZVec<TPZAutoPointer<std::map<int64_t,int64_t>>> &el_map)
+{
+
+    if((dep_ids.size() != indep_ids.size()) || dep_ids.size() != periodic_nodes.size()){
+        DebugStop();
+    }
+    
+    const int n_periodic_reg = dep_ids.size();
+    el_map.Resize(n_periodic_reg,nullptr);
+
+    /**
+       now we want to map periodic ELEMENTS
+       IMPORTANT: since we have changed the node ids,
+       now we no longer have index == id
+    */
+    for(auto ireg = 0; ireg < n_periodic_reg; ireg++){
+        el_map[ireg] = new std::map<int64_t,int64_t>{};
+        const auto depmatid = dep_ids[ireg];
+        const auto indepmatid = indep_ids[ireg];
+        const auto &node_map = *periodic_nodes[ireg];
+        for (auto depel : gmesh->ElementVec()) {
+            if(!depel){continue;}
+            if(depel->MaterialId() != depmatid){continue;}
+            
+            //we have found a dependent el
+            const auto nnodes = depel->NNodes();
+            const auto nsides = depel->NSides();
+            const auto dep_type = depel->Type();
+            constexpr int max_nnodes{8};
+            TPZManVector<int64_t,max_nnodes> mapped_nodes(nnodes);
+            for (auto in = 0; in < nnodes; in++) {
+                const auto depnode = depel->NodeIndex(in);
+                mapped_nodes[in] = node_map.at(depnode);
+            }
+            TPZGeoEl* indepel{nullptr};
+            const int nelem = gmesh->ElementVec().NElements();
+            for(auto gel : gmesh->ElementVec()){
+                if(!gel){continue;}
+                if(indepel){break;}
+                if (gel->MaterialId() != indepmatid ||
+                    gel->Type() != dep_type) {continue;}
+            
+                TPZManVector<int64_t,max_nnodes> indepnodes(nnodes);
+                gel->GetNodeIndices(indepnodes);
+                bool samenodes = true;
+                for (auto in = 0; in < nnodes && samenodes; in++) {
+                    const auto indepnode = indepnodes[in];
+                    const bool hasnode =
+                        std::find(mapped_nodes.begin(), mapped_nodes.end(),
+                                  indepnode) != mapped_nodes.end();
+                    samenodes = samenodes && hasnode;
+                }
+                if (!samenodes) {continue;}
+                indepel=gel;
+            }
+            if(!indepel){
+                PZError<<__PRETTY_FUNCTION__
+                       <<"\nCould not find periodic element for:\n"
+                       <<"el index "<<depel->Index()<<" matid:  "<<depmatid<<std::endl;
+                DebugStop();
+            }
+#ifdef PZDEBUG
+            if(el_map[ireg]->count(depel->Index())!=0){
+                DebugStop();
+            }
+#endif
+            el_map[ireg]->insert({depel->Index(),indepel->Index()});
+        }
+    }
+}
+
+
+
 #define CREATE_TEMPL(TTOPOL) \
     template \
     TPZGeoMesh * \

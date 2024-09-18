@@ -55,6 +55,25 @@ namespace TPZGeoMeshTools{
         
     TPZGeoEl* FindElementByMatId(TPZGeoMesh* gmesh, TPZVec<REAL> &x, TPZVec<REAL> & qsi, int64_t & InitialElIndex, const std::set<int>& matids);
     TPZGeoEl* FindCloseElement(TPZGeoMesh* gmesh, TPZVec<REAL> &x, int64_t & InitialElIndex, const std::set<int>& matids);
+
+    /*
+      @brief Given the pairs of periodic material ids and the mapping of periodic nodes,
+      fills a map of periodic elements
+      @param [in] geometric mesh
+      @param [in] dep_ids vector of all dependent material ids we are interested in
+      @param [in] indep_ids vector of all independent material ids we are interested in
+      @param [in] periodic_nodes vector of periodic nodes mapping
+      @param [out] el_map vector of maps of periodic element to be filled
+      @note the three input parameters are indexed by periodicity relationship, i.e.,
+      dep_ids[idx] is the dependent material id, indep_ids[idx] is the corresponding
+      independent material id and periodic_nodes[idx] is a pointer to the map of
+      periodic nodes in the regions with dep_id and indep_id
+     */
+    void
+    FindPeriodicElements(TPZGeoMesh *gmesh,
+                         const TPZVec<int> &dep_ids, const TPZVec<int> &indep_ids,
+                         const TPZVec<TPZAutoPointer<std::map<int64_t,int64_t>>> &periodic_nodes,
+                         TPZVec<TPZAutoPointer<std::map<int64_t,int64_t>>> &el_map);
 }
 
 #endif
