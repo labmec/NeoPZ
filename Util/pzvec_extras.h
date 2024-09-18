@@ -174,10 +174,10 @@ TPZVec< T >& Sort(TPZVec< T >& v) {
 
 /** @brief Finds if exists the element e into vector v */
 template< class T >
-int Find(TPZVec< T >& v, const T& e) {
-    T* found = std::find(static_cast<T*> (v), v + v.NElements(), e);
+int64_t Find(const TPZVec< T >& v, const T& e) {
+    auto* found = std::find(v.begin(), v.end(), e);
 
-    int dist = distance(static_cast<T*> (v), found);
+    const int64_t dist = found - v.begin();
 
     return (dist == v.NElements() ? -1 : dist);
 }
