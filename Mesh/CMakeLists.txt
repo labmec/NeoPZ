@@ -63,6 +63,7 @@ set(headers
   TPZCompElHDivDuplConnects.h
   TPZCompElHDivDuplConnectsBound.h
   TPZCompElUnitaryLagrange.h
+  SPZPeriodicData.h
 )
 
 set(sources
