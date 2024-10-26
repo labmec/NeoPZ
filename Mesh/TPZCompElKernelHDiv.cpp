@@ -290,6 +290,7 @@ template <class TSHAPE>
 void TPZCompElKernelHDiv<TSHAPE>::SideShapeFunction(int side, TPZVec<REAL> &point, TPZFMatrix<REAL> &phi, TPZFMatrix<REAL> &dphi)
 {
 
+    TPZGeoEl *ref = this->Reference();
     if (side == TSHAPE::NSides - 1)
     {
         DebugStop();
@@ -300,7 +301,6 @@ void TPZCompElKernelHDiv<TSHAPE>::SideShapeFunction(int side, TPZVec<REAL> &poin
     TPZManVector<int64_t, 27> id(nn);
     TPZManVector<int, 27> order(nc - nn);
     int n, c;
-    TPZGeoEl *ref = this->Reference();
     for (n = 0; n < nn; n++)
     {
         int nodloc = TSHAPE::SideNodeLocId(side, n);
