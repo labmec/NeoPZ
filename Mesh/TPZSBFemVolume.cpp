@@ -14,6 +14,7 @@
 #include "TPZMatSingleSpace.h"
 #include "TPZMatCombinedSpaces.h"
 #include "TPZMatErrorSingleSpace.h"
+#include "TPZMatErrorCombinedSpaces.h"
 #include "TPZMaterial.h"
 #include "pzelmat.h"
 #include "pzgraphelq2dd.h"
@@ -874,11 +875,21 @@ void TPZSBFemVolume::EvaluateError(TPZVec<REAL> &errors,bool store_error)
     auto *material = this->Material();
 	auto* matError =
         dynamic_cast<TPZMatErrorSingleSpace<STATE> *>(this->Material());
-    if (!matError || !(matError->HasExactSol()))
+    auto *matErrorCS =
+        dynamic_cast<TPZMatErrorCombinedSpaces<STATE> *>(this->Material());
+    if (!matError && !matErrorCS)
     {
         PZError<<__PRETTY_FUNCTION__;
-        PZError<<" the material has no associated exact solution\n";
+        PZError<<" the material has no error interface\n";
         PZError<<"Aborting...";
+        DebugStop();
+    }
+    if (matError && !matError->HasExactSol()) {
+        std::cout << "Exiting EvaluateError - null error - no exact solution.";
+        DebugStop();
+    }
+    if (matErrorCS && !matErrorCS->HasExactSol()) {
+        std::cout << "Exiting EvaluateError - null error - no exact solution.";
         DebugStop();
     }
     if (dynamic_cast<TPZBndCond *> (matError))
@@ -886,7 +897,15 @@ void TPZSBFemVolume::EvaluateError(TPZVec<REAL> &errors,bool store_error)
         std::cout << "Exiting EvaluateError - null error - boundary condition material.";
         DebugStop();
     }
-    int NErrors = matError->NEvalErrors();
+    int NErrors = 0;
+    if(matError)
+    {
+        NErrors = matError->NEvalErrors();
+    }
+    else
+    {
+        NErrors = matErrorCS->NEvalErrors();
+    }
     errors.Resize(NErrors);
     errors.Fill(0.);
     int problemdimension = Mesh()->Dimension();
@@ -909,7 +928,8 @@ void TPZSBFemVolume::EvaluateError(TPZVec<REAL> &errors,bool store_error)
     REAL weight;
     TPZManVector<STATE, 9> flux_el(0, 0.);
 
-    TPZMaterialDataT<STATE> data;
+    TPZManVector<TPZMaterialDataT<STATE>,2> datavec(2);
+    TPZMaterialDataT<STATE> &data = datavec[0];
     data.x.Resize(3);
     int nintpoints = intrule->NPoints();
 
@@ -932,8 +952,14 @@ void TPZSBFemVolume::EvaluateError(TPZVec<REAL> &errors,bool store_error)
         }
         //contribuicoes dos erros
         ref->X(intpoint, data.x);
-
-        matError->Errors(data, values);
+        if(matError)
+        {
+            matError->Errors(data, values);
+        }
+        else
+        {
+            matErrorCS->Errors(datavec, values);
+        }
 
         for (int ier = 0; ier < NErrors; ier++)
             errors[ier] += values[ier] * weight;
