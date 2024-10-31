@@ -22,7 +22,7 @@ TPZMixedDarcyFlow::TPZMixedDarcyFlow() : TPZRegisterClassId(&TPZMixedDarcyFlow::
  */
 TPZMixedDarcyFlow::TPZMixedDarcyFlow(const TPZMixedDarcyFlow &copy) : TBase(copy), fDim(copy.fDim)
 {
-    
+    *this = copy;
 }
 /**
          copy constructor

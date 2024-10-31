@@ -14,6 +14,7 @@ TPZDarcyFlow::TPZDarcyFlow(int id, int dim) : TPZRegisterClassId(&TPZDarcyFlow::
 
 TPZDarcyFlow::TPZDarcyFlow(const TPZDarcyFlow &copy) : TPZMatBase(copy), fDim(copy.fDim)
 {
+    *this = copy;
 }
 
 TPZDarcyFlow& TPZDarcyFlow::operator=(const TPZDarcyFlow &copy) {
