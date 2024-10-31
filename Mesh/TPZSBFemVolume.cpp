@@ -969,6 +969,13 @@ void TPZSBFemVolume::EvaluateError(TPZVec<REAL> &errors,bool store_error)
     for (int ier = 0; ier < NErrors; ier++) {
         errors[ier] = sqrt(errors[ier]);
     }//for ier
+    if(store_error) {
+        TPZFMatrix<STATE> &elsol = Mesh()->ElementSolution();
+        int64_t elindex = Index();
+        for (int ier = 0; ier < NErrors; ier++) {
+            elsol(elindex, ier) = errors[ier];
+        }
+    }
 
     // intrule->SetOrder(prevorder);
     intrule->SetOrder(maxorder);
