@@ -1117,6 +1117,8 @@ void TPZGeoElSide::BuildConnectivities(TPZVec<TPZGeoElSide> &sidevec,TPZVec<TPZG
 	 os vetores trazem a partic� do lado comum a  
 	 dois vizinhos segundo os seus proprios padr�s de
 	 refinamento, a divis� �identica para este lado comum*/ //cout << "Sao iguais: acertar as vizinhancas!!!\n";
+	static int count = 0;
+
 	int64_t size = sidevec.NElements();
 	int64_t neighsize = neighvec.NElements();
 	if(size!=neighsize || !size){
@@ -1143,7 +1145,8 @@ void TPZGeoElSide::BuildConnectivities(TPZVec<TPZGeoElSide> &sidevec,TPZVec<TPZG
 				case 0://canto	    
 					if(elside->SideNodeIndex(side,0) == elneigh->SideNodeIndex(neighside,0)){
 						if(subside.NeighbourExists(neighsubside)) {
-							cout << "TPZGeoElSide::BuildConnectivities the neighbour already exists?";
+							if(count < 5) cout << "TPZGeoElSide::BuildConnectivities the neighbour already exists?\n";
+							count++;
 						} else {
 							subside.SetConnectivity(neighsubside);
 						}
@@ -1156,7 +1159,8 @@ void TPZGeoElSide::BuildConnectivities(TPZVec<TPZGeoElSide> &sidevec,TPZVec<TPZG
 					im[1] = elneigh->SideNodeIndex(neighside,1);
 					if( (in[0] == im[0] && in[1] == im[1]) || (in[0] == im[1] && in[1] == im[0]) ){
 						if(subside.NeighbourExists(neighsubside)) {
-							cout << "TPZGeoElSide::BuildConnectivities the neighbour already exists?";
+							if(count < 5) cout << "TPZGeoElSide::BuildConnectivities the neighbour already exists?\n";
+							count++;
 						} else {
 							subside.SetConnectivity(neighsubside);
 						}
@@ -1176,7 +1180,8 @@ void TPZGeoElSide::BuildConnectivities(TPZVec<TPZGeoElSide> &sidevec,TPZVec<TPZG
 					for(i=0;i<4;i++) for(j=0;j<4;j++) if(in[i]==im[j]) num++;
 					if(num==4){
 						if(subside.NeighbourExists(neighsubside)) {
-							cout << "TPZGeoElSide::BuildConnectivities the neighbour already exists?";
+							if(count < 5) cout << "TPZGeoElSide::BuildConnectivities the neighbour already exists?\n";
+							count++;
 						} else {
 							subside.SetConnectivity(neighsubside);
 						}
@@ -1448,7 +1453,8 @@ TPZGeoElSide TPZGeoElSide::HasNeighbour(int materialid) const
     TPZGeoElSide neighbour = Neighbour();
     while(neighbour != *this)
     {
-        if(neighbour.Element()->MaterialId() == materialid) return neighbour;
+		int matid = neighbour.Element()->MaterialId();
+        if(matid == materialid) return neighbour;
         neighbour = neighbour.Neighbour();
     }
     return TPZGeoElSide();
