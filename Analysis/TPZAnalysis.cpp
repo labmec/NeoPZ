@@ -943,7 +943,7 @@ void TPZAnalysis::IdentifyPostProcessingMatIds(int dimension, std::set<int> & ma
         TPZMaterial *mat = matit->second;
         auto *lag = dynamic_cast<TPZLagrangeMultiplierBase *> (mat);
         TPZBndCond *bc = dynamic_cast<TPZBndCond *> (mat);
-        if (mat && !bc && !lag && mat->Dimension() == dimension){
+        if (mat && !lag && mat->Dimension() == dimension){
             matids.insert(mat->Id());
         }
     }

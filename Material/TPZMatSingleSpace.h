@@ -28,7 +28,7 @@ class TPZVec;
  * It contains the type-agonstic interfaces that simple (non-multiphysics) 
  * materials should implement.
  */
-class TPZMatSingleSpace : public virtual TPZSavable{
+class TPZMatSingleSpace : public virtual TPZSavable {
 public:
     //! Default constructor
     TPZMatSingleSpace() = default;
@@ -70,6 +70,26 @@ public:
                                   uint64_t &du_row,
                                   uint64_t &du_col) const;
     [[nodiscard]] int ClassId() const override;
+
+    /** @name PostProcess
+     * @{
+     */
+    
+    /** @brief Returns the variable index associated with a given name */
+    [[nodiscard]] virtual int VariableIndex(const std::string &name) const;
+    
+    /** 
+	 * @brief Returns the number of variables associated with the variable indexed by var. 
+	 * @param var Index variable into the solution, is obtained by calling VariableIndex
+	 */
+    [[nodiscard]] virtual int NSolutionVariables(int var) const;
+
+
+
+    /**
+     * @}
+     */
+
 };
 
 
@@ -160,7 +180,7 @@ public:
     */
     virtual void Solution(const TPZMaterialDataT<TVar> &data, int var,
                           TPZVec<TVar> &sol);
-    
+
     [[nodiscard]] int IntegrationRuleOrder(const int elPMaxOrder) const override;
     
     [[nodiscard]] int ClassId() const override;
@@ -188,9 +208,6 @@ public:
     void ContributeBC(const TPZMaterialDataT<TVar> &data, REAL weight,
                       TPZFMatrix<TVar> &ek, TPZFMatrix<TVar> &ef,
                       TPZBndCondT<TVar> &bc) override;
-    /** @brief This method should never be called. Throws.*/
-    void Solution(const TPZMaterialDataT<TVar> &data, int var,
-                  TPZVec<TVar> &sol) override;
     /** @brief Forward the call to TPZMatSingleSpaceT::FillBoundaryConditionDataRequirements*/
     void FillDataRequirements(TPZMaterialData &data) const override;
     

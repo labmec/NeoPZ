@@ -136,10 +136,24 @@ int TPZHCurlProjection<TVar>::VariableIndex(const std::string &name) const{
 template<class TVar>
 int TPZHCurlProjection<TVar>::NSolutionVariables(int var) const{
 	if(var == ESolution) return fDim;
-    if (var == ECurl) return fCurlDim;
+  if (var == ECurl) return fCurlDim;
     
 	
-    return TPZMaterial::NSolutionVariables(var);
+  return TPZMaterial::NSolutionVariables(var);
+}
+
+template<class TVar>
+int TPZHCurlProjection<TVar>::NSolutionVariablesBC(int var) const{
+    if(fDim ==3){
+        if(var == ESolution) return 2;
+        if(var == ECurl) return 1;
+    }else{
+        if(var == ESolution) return 1;
+        //no idea on how to plot the curl in 1d bound els
+    }
+    
+	
+  return TPZMaterial::NSolutionVariables(var);
 }
 
 template<class TVar>
@@ -162,6 +176,16 @@ void TPZHCurlProjection<TVar>::Solution(const TPZMaterialDataT<TVar> &data,
             PZError<<"\nCouldnt identify solution index. Aborting...\n";
             DebugStop();
     }
+}
+
+template<class TVar>
+void TPZHCurlProjection<TVar>::SolutionBC(const TPZMaterialDataT<TVar> &data,
+                                          int var, TPZVec<TVar> &solOut)
+{
+    const int dim = this->Dimension();
+    this->SetDimension(dim-1);
+    this->Solution(data,var,solOut);
+    this->SetDimension(dim);
 }
 
 template<class TVar>

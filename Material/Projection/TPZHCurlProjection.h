@@ -8,7 +8,7 @@
 #define TPZHCURLPROJECTION_H
 
 #include "TPZMatBase.h"
-#include "TPZMatSingleSpace.h"
+#include "TPZMatSingleSpaceBCSol.h"
 #include "TPZMatErrorSingleSpace.h"
 
 /**
@@ -25,10 +25,10 @@
  */
 template<class TVar=STATE>
 class  TPZHCurlProjection :
-    public TPZMatBase<TVar,TPZMatSingleSpaceT<TVar>,
-                      TPZMatErrorSingleSpace<TVar>>
+    public TPZMatBase<TVar,TPZMatSingleSpaceBCSol<TVar>,
+                      TPZMatErrorSingleSpace<TVar>  >
 {
-	using TBase = TPZMatBase<TVar,TPZMatSingleSpaceT<TVar>,TPZMatErrorSingleSpace<TVar>>;
+	using TBase = TPZMatBase<TVar,TPZMatSingleSpaceBCSol<TVar>,TPZMatErrorSingleSpace<TVar>>;
 public:
     //! Default constructor
     TPZHCurlProjection();
@@ -74,15 +74,21 @@ public:
 	
 	/** @brief It returns the variable index associated with the name */
 	int VariableIndex(const std::string &name) const override;
+
+  int VariableIndexBC(const std::string &name) const override
+  {return VariableIndex(name);}
 	
 	int NSolutionVariables(int var) const override;
+  
+  int NSolutionVariablesBC(int var) const override;
 
-    void Solution(const TPZMaterialDataT<TVar> &data,
-                  int var, TPZVec<TVar> &solOut) override;
-    
-    void GetSolDimensions(uint64_t &u_len,
-                          uint64_t &du_row,
-                          uint64_t &du_col) const override;
+  void Solution(const TPZMaterialDataT<TVar> &data,
+                int var, TPZVec<TVar> &solOut) override;
+  void SolutionBC(const TPZMaterialDataT<TVar> &data,
+                int var, TPZVec<TVar> &solOut) override;
+  void GetSolDimensions(uint64_t &u_len,
+                        uint64_t &du_row,
+                        uint64_t &du_col) const override;
 
     void Errors(const TPZMaterialDataT<TVar> &data,
                 TPZVec<REAL> &errors) override;

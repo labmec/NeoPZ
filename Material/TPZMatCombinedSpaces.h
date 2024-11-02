@@ -42,6 +42,24 @@ public:
     [[nodiscard]]virtual int IntegrationRuleOrder(const TPZVec<int> &elPMaxOrder) const = 0;
     
     [[nodiscard]] int ClassId() const override;
+
+        /** @name PostProcess
+     * @{
+     */
+    
+    /** @brief Returns the variable index associated with a given name */
+    [[nodiscard]] virtual int VariableIndex(const std::string &name) const;
+    
+    /** 
+	 * @brief Returns the number of variables associated with the variable indexed by var. 
+	 * @param var Index variable into the solution, is obtained by calling VariableIndex
+	 */
+    [[nodiscard]] virtual int NSolutionVariables(int var) const;
+
+    /**
+     * @}
+     */
+
 };
 
 template<class TVar>

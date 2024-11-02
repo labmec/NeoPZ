@@ -4,7 +4,6 @@
 #include "TPZBndCondT.h"
 
 
-
 /**
  * @brief This class ensures that the boundary condition material is compatible
  * with any given interfaces.
@@ -41,10 +40,14 @@ class TPZBndCondBase :
     void SetMaterial(TPZMaterial *) final;
     
     [[nodiscard]] int Dimension() const final
-    {return this->fMaterial->Dimension();}
+    {return this->fMaterial->Dimension() - 1;}
+    
     [[nodiscard]] int NStateVariables() const final
     {return this->fMaterial->NStateVariables();}
 
+
+
+    
     [[nodiscard]] int Id() const override {
         return TPZMaterial::Id();
     }

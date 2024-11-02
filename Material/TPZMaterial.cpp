@@ -1,10 +1,16 @@
 #include "TPZMaterial.h"
 #include "TPZMaterialData.h"
 #include "TPZStream.h"
+#include "TPZMatSingleSpace.h"
+#include "TPZMatCombinedSpaces.h"
 
 #include <string>
 
 int TPZMaterial::VariableIndex(const std::string &name) const{
+	const TPZMatSingleSpace * matsingle = dynamic_cast<const TPZMatSingleSpace *>(this);
+	if(matsingle) return matsingle->VariableIndex(name);
+	const TPZMatCombinedSpaces *matcomb = dynamic_cast<const TPZMatCombinedSpaces *>(this);
+	if(matcomb) return matcomb->VariableIndex(name);
 	std::cout << __PRETTY_FUNCTION__ << " Variable " << name << " not found\n";
 	
 #ifdef PZ_LOG2
@@ -17,12 +23,19 @@ int TPZMaterial::VariableIndex(const std::string &name) const{
 	return -1;
 }
 
+
+
 int TPZMaterial::NSolutionVariables(int index) const{
+	const TPZMatSingleSpace * matsingle = dynamic_cast<const TPZMatSingleSpace *>(this);
+	if(matsingle) return matsingle->NSolutionVariables(index);
+	const TPZMatCombinedSpaces *matcomb = dynamic_cast<const TPZMatCombinedSpaces *>(this);
+	if(matcomb) return matcomb->NSolutionVariables(index);
 	PZError<<__PRETTY_FUNCTION__;
 	PZError<<" Implement me in your material for post processing solutions.\n";
 	DebugStop();
 	return 0;
 }
+
 
 TPZMaterial* TPZMaterial::NewMaterial() const{
 	PZError<<__PRETTY_FUNCTION__;

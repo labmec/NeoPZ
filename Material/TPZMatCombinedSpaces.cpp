@@ -10,6 +10,31 @@ int TPZMatCombinedSpaces::ClassId() const{
     return Hash("TPZMatCombinedSpaces");
 }
 
+/** @brief Returns the variable index associated with a given name */
+
+int TPZMatCombinedSpaces::VariableIndex(const std::string &name) const
+{
+    PZError<<__PRETTY_FUNCTION__;
+    PZError<<" should be implemented in your material";
+    PZError<<" for any sort of post processing of the FEM solution\n";
+    PZError<<"Aborting...\n";
+    DebugStop();
+}
+    
+    /** 
+	 * @brief Returns the number of variables associated with the variable indexed by var. 
+	 * @param var Index variable into the solution, is obtained by calling VariableIndex
+	 */
+
+int TPZMatCombinedSpaces::NSolutionVariables(int var) const
+{
+    PZError<<__PRETTY_FUNCTION__;
+    PZError<<" should be implemented in your material";
+    PZError<<" for any sort of post processing of the FEM solution\n";
+    PZError<<"Aborting...\n";
+    DebugStop();
+}
+
 template<class TVar>
 void TPZMatCombinedSpacesT<TVar>::FillDataRequirements(TPZVec<TPZMaterialDataT<TVar>> &datavec) const
 {
@@ -129,6 +154,7 @@ void TPZMatCombinedSpacesBC<TVar>::ContributeBC(const TPZVec<TPZMaterialDataT<TV
     PZError<< "should not be called! Aborting...\n";
     DebugStop();
 }
+
 
 template<class TVar>
 void TPZMatCombinedSpacesBC<TVar>::Solution(const TPZVec<TPZMaterialDataT<TVar>> &datavec, int var,
