@@ -1165,7 +1165,7 @@ void TPZInterpolationSpace::EvaluateError(TPZVec<REAL> &errors,bool store_error)
         }
         return max_int_order;
     }();
-	TPZManVector<int,3> maxorder(dim, maxIntOrder);
+    TPZManVector<int,3> maxorder(dim, intrule->GetMaxOrder());
 	intrule->SetOrder(maxorder);
 	TPZManVector<REAL,10> intpoint(problemdimension), values(NErrors);
 	REAL weight;
@@ -1207,7 +1207,7 @@ void TPZInterpolationSpace::EvaluateError(TPZVec<REAL> &errors,bool store_error)
             elvals(index,ier) = errors[ier];
         }
     }
-	intrule->SetOrder(prevOrder);
+//	intrule->SetOrder(prevOrder);
 	
 }//method
 
