@@ -6,6 +6,11 @@
 #include "TPZMaterialDataT.h"
 #include "pzaxestools.h"
 #include "TPZLapack.h"
+#include "pzlog.h"
+
+#ifdef PZ_LOG
+static TPZLogger logger("pz.material.darcy");
+#endif
 
 #define USEBLAS
 
@@ -580,6 +585,13 @@ void TPZMixedDarcyFlow::Errors(const TPZVec<TPZMaterialDataT<STATE>> &data, TPZV
     errors[2] = residual;//L2 for div
     errors[3] = L2grad;
     errors[4] = L2flux + residual;
+#ifdef PZ_LOG
+    if(logger.isDebugEnabled()) {
+        std::stringstream sout;
+        sout << "x " << data[0].x << " fluxfem " << fluxfem << " fluxexact " << fluxexact;
+        LOGPZ_DEBUG(logger, sout.str())
+    }
+#endif
 }
 
 int TPZMixedDarcyFlow::VariableIndex(const std::string &name) const {

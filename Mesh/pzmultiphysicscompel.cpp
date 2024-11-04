@@ -38,6 +38,7 @@ using namespace pzgeom;
 
 #ifdef PZ_LOG
 static TPZLogger logger("pz.mesh.tpzmultiphysiccompEl");
+static TPZLogger logerror("pz.material.darcy");
 #endif
 
 template <class TGeometry>
@@ -1212,7 +1213,15 @@ void TPZMultiphysicsCompEl<TGeometry>::EvaluateErrorT(TPZVec<REAL> &errors, bool
 //      PZError<<"See TPZMatErrorCombinedSpaces\n";
       return;
   }
-      
+#ifdef PZ_LOG
+    if(logerror.isDebugEnabled()) {
+        std::stringstream sout;
+        sout << "Element index " << Index();
+        LOGPZ_DEBUG(logerror,sout.str())
+    }
+#endif
+    
+
   const int NErrors = matError->NEvalErrors();
   errors.Resize(NErrors);
   errors.Fill(0.);
