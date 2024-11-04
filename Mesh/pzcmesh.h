@@ -493,7 +493,7 @@ private:
     /// @param true_error true_error of element
     /// @param errorSum sum of all errors of all compels
     /// @param matset set with matids to compute error
-    void AccountForElementError(TPZCompEl* cel, bool store_error, TPZManVector<REAL,3>& true_error,
+    void AccountForElementError(TPZCompEl* cel, bool store_error, TPZVec<REAL>& true_error,
                                 TPZVec<REAL>& errorSum, std::set<int> &matset);
     
 	/** @brief Creates the computational elements, and the degree of freedom nodes */ 
