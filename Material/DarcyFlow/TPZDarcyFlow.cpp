@@ -318,14 +318,14 @@ void TPZDarcyFlow::Errors(const TPZMaterialDataT<STATE> &data,
     if(!this->HasExactSol()){
         PZError<<__PRETTY_FUNCTION__;
         PZError<<"\nThe material has no associated exact solution. Aborting...\n";
-        DebugStop();
+        DebugStop(); 
     }
 #endif
-    
-    errors.Resize(NEvalErrors(), 0.);
+    if(errors.size() != NEvalErrors()) DebugStop();
+//    errors.Resize(NEvalErrors(), 0.);
 
-    TPZVec<STATE> exact_pressure(1, 0);
-    TPZFMatrix<STATE> exact_flux(fDim, 1, 0);
+    TPZManVector<STATE,1> exact_pressure(1, 0);
+    TPZFNMatrix<3,STATE> exact_flux(fDim, 1, 0);
     fExactSol(x, exact_pressure, exact_flux);
 
     TPZFNMatrix<3,STATE> gradu(3,1);
@@ -338,7 +338,7 @@ void TPZDarcyFlow::Errors(const TPZMaterialDataT<STATE> &data,
     // errors[2] - H1 semi-norm: |H1| = K*(grad[u] - grad[u_exact])
     const STATE perm = GetPermeability(data.x);
 
-    TPZVec<REAL> graduDiff(fDim, 0);
+    TPZManVector<REAL,3> graduDiff(fDim, 0);
     for (int id = 0; id < fDim; id++) {
         graduDiff[id] += fabs(gradu(id) - exact_flux(id, 0));
     }
@@ -347,7 +347,7 @@ void TPZDarcyFlow::Errors(const TPZMaterialDataT<STATE> &data,
         REAL aux = graduDiff[id];
         diff += perm * aux * aux;
     }
-    errors[2] += abs(diff);
+    errors[2] = abs(diff);
 
     // errors[0] - H1 norm
     errors[0] = errors[1] + errors[2];
