@@ -15,6 +15,7 @@ if(APPLE)
    target_link_libraries(test_library PRIVATE ${ACCELERATE_LIB})
 ENDIF(APPLE)
 
+add_subdirectory(TestGmsh)
 add_subdirectory(TestShapeFAD)
 add_subdirectory(TestReducedSpace)
 add_subdirectory(TestAutoPointer)
