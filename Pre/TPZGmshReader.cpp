@@ -451,6 +451,8 @@ void TPZGmshReader::ReadPeriodic4(std::istream &read)
     */
     
     FillPeriodicData(m_gmesh, entity_periodic_nodes, periodic_entities);
+    AdjustPeriodicNodes(m_gmesh);
+    AdjustPeriodicElements(m_gmesh);
     std::cout<<"Finished setting periodicity!"<<std::endl;
 }
 
@@ -1406,6 +1408,15 @@ void TPZGmshReader::FillPeriodicData(
         }
     }
 
+}
+
+void TPZGmshReader::AdjustPeriodicNodes(TPZGeoMesh *gmesh)
+{
+    
+    //just to make it easier to read
+    auto &dep_mat_ids = m_periodic_data->dep_mat_ids;
+    auto &indep_mat_ids = m_periodic_data->indep_mat_ids;
+    auto &nodes_map = m_periodic_data->nodes_map;
     //number of periodic regions
     const auto n_periodic_reg = dep_mat_ids.size();
     /*
@@ -1424,6 +1435,14 @@ void TPZGmshReader::FillPeriodicData(
             dep_node.SetNodeId(m_gmesh->CreateUniqueNodeId());
         }
     }
+
+}
+void TPZGmshReader::AdjustPeriodicElements(TPZGeoMesh *gmesh)
+{
+    //just to make it easier to read
+    auto &dep_mat_ids = m_periodic_data->dep_mat_ids;
+    auto &indep_mat_ids = m_periodic_data->indep_mat_ids;
+    auto &nodes_map = m_periodic_data->nodes_map;
     /**
        now we want to check if periodic ELEMENTS
        have the correct node ordering

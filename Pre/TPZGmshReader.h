@@ -174,12 +174,22 @@ private:
     /// read the data with respect to periodic nodes
     void ReadPeriodic4(std::istream &input);
     
-    //! Fills m_periodic_els structure after creating the mesh
+    //! Fills m_periodic_data structure after creating the mesh
     void FillPeriodicData(
       TPZGeoMesh *gmesh,
       const TPZVec<std::map<int64_t, std::map<int64_t, int64_t>>>
       &entity_periodic_nodes,
       const TPZVec<std::map<int64_t, int64_t>> &periodic_entities);
+
+    /** @brief Modifies periodic nodes ids as to ensure relative ordering compatibility
+        This method must be called after FillPeriodicData.
+     */
+    void AdjustPeriodicNodes(TPZGeoMesh *gmesh);
+    /**
+       @brief Verifies and adjusts ordering of nodes between periodic elements.
+       This method must be called after FillPeriodicData.
+     */
+    void AdjustPeriodicElements(TPZGeoMesh *gmesh);
 
   public:
     /// Default constructor
