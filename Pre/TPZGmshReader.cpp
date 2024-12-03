@@ -1409,20 +1409,19 @@ void TPZGmshReader::FillPeriodicData(
     //number of periodic regions
     const auto n_periodic_reg = dep_mat_ids.size();
     /*
-      now we just want to change the ids of the dependent nodes
-      so as to match the ids of the independent nodes
-
-      we will iterate on the periodic regions with increasing dimension,
-      therefore we ensure that periodic surfaces containing periodic edges
-      will be fine
+      now we just want to change the ids of the periodic nodes
+      as to ensure that their relative ordering is the same on both
+      dependent and independent entities
     */
     for(auto ireg = 0; ireg < n_periodic_reg; ireg++)
     {
         const auto &node_map = *(nodes_map[ireg]);
         const int n_nodes = node_map.size();
-        for(const auto &[dep_node,indep_node] : node_map){
-            const auto indep_node_id = m_gmesh->NodeVec()[indep_node].Id();
-            m_gmesh->NodeVec()[dep_node].SetNodeId(indep_node_id);
+        for(const auto &[dep_node_idx,indep_node_idx] : node_map){
+            auto &indep_node = m_gmesh->NodeVec()[indep_node_idx];
+            auto &dep_node = m_gmesh->NodeVec()[dep_node_idx];
+            indep_node.SetNodeId(m_gmesh->CreateUniqueNodeId());
+            dep_node.SetNodeId(m_gmesh->CreateUniqueNodeId());
         }
     }
     /**
