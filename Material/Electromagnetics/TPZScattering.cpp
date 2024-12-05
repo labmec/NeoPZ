@@ -155,6 +155,9 @@ void TPZScattering::ContributeBC(const TPZMaterialDataT<CSTATE> &data,
     case 1:
       ///PMC condition just adds zero to both matrices. nothing to do here....
       break;
+    case 2:
+      ///Periodic condition is treated at mesh level. nothing to do here....
+      break;
     default:
       PZError<<__PRETTY_FUNCTION__;
       PZError<<"\nThis module supports only dirichlet and neumann boundary conditions.\n";
