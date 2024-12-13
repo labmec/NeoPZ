@@ -577,8 +577,8 @@ void TPZInterpolationSpace::SolutionInternal(TPZVec<REAL> &qsi,int var,
 	data.x.Resize(3);
 	this->Reference()->X(qsi, data.x);
 	
-	int solSize = this->Material()->NSolutionVariables(var);
-	sol.Resize(solSize);
+//	int solSize = this->Material()->NSolutionVariables(var);
+//	sol.Resize(solSize);
 	sol.Fill(0.);
 	material->Solution(data, var, sol);
 }
