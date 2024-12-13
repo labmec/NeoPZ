@@ -121,6 +121,7 @@ void ComputeFieldAtEl(TPZCompEl *cel,
       //position will change depending on field dimension
       auto pos = init_pos[i] + fdim*iv;
       sol.Resize(fdim);
+        sol.Fill(0.);
       graphel.Solution(ip, field.Id(), sol);
 
       /**TPZPostProcEl<TVar>::Solution might resize the sol array
@@ -180,14 +181,15 @@ TPZVTKGenerator::TPZVTKGenerator(TPZCompMesh* cmesh,
     fPostProcDim = dim;
   }
   
-  const int nvars = fields.size();
+    const auto nvars = fields.size();
   
   //let us check for valid post-processing matials
   for(auto [id,matp] : cmesh->MaterialVec()){
     auto bnd =
       dynamic_cast<TPZBndCond *>(matp);
+      auto bnd2 = dynamic_cast<TPZMatCombinedSpacesBC<STATE> *>(matp);
     //we skip boundary materials
-    if(matp && !bnd){
+    if(matp && !bnd && !bnd2){
       if(matp->Dimension() != fPostProcDim) {continue;}
       bool foundAllVars{true};
       for(int i = 0; (i < nvars) && foundAllVars; i++){
