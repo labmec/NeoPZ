@@ -495,12 +495,11 @@ void TPZMultiphysicsElement::TransferMultiphysicsElementSolutionT()
 
             int nrows = meshSol.Rows();
             int ncols = meshSol.Cols();
-            celSol.Resize(nrows,ncols);
+//            celSol.Resize(nrows,ncols);
             for (int ibl = 0; ibl < blsz; ibl++) {
                 for (int iload = 0; iload < nload; iload++) {
                     celSol(posloc+ibl,iload) = meshSol(pos+ibl,iload);
                 }
-
             }
         }
     }
