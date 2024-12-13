@@ -362,7 +362,7 @@ void TPZDarcyFlow::Errors(const TPZMaterialDataT<STATE> &data,
     for (int id = 0; id < fDim; id++) {
         flux_sol[id] = - perm * dsoldx(id, 0);
     }
-
+    return;
     for (int id = 0; id < fDim; id++) {
         diff = fabs(exact_flux[id] - flux_sol[id]);
         errors[3 + id] = diff * diff;

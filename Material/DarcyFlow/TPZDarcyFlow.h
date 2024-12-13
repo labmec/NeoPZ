@@ -65,7 +65,7 @@ public:
      * Returns the number of errors to be evaluated, that is, the number of error norms associated
      * with the problem.
      */
-    int NEvalErrors() const override { return 6; }
+    int NEvalErrors() const override { return 3; }
 
     /**
      * @brief Sets problem dimension
