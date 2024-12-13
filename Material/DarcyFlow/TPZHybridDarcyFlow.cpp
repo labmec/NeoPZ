@@ -14,7 +14,7 @@ TPZHybridDarcyFlow::TPZHybridDarcyFlow(int id, int dim) : TPZRegisterClassId(&TP
 
 
 
-
+/*
 int TPZHybridDarcyFlow::VariableIndex(const std::string &name) const {
 
     if (!strcmp("Solution", name.c_str())) return 1;
@@ -58,7 +58,7 @@ int TPZHybridDarcyFlow::NSolutionVariables(int var) const {
 
     return TPZDarcyFlow::NSolutionVariables(var);
 }
-
+*/
 
 
 int TPZHybridDarcyFlow::ClassId() const {
@@ -279,6 +279,8 @@ void TPZHybridDarcyFlow::Errors(const TPZVec<TPZMaterialDataT<STATE>> &data, TPZ
 {
     if(!fExactSol) return;
 
+    TPZDarcyFlow::Errors(data[1],errors);
+    return;
     errors.Resize(NEvalErrors());
     errors.Fill(0.0);
 
