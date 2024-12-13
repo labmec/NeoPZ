@@ -25,6 +25,8 @@ TPZInterpolatedElement(mesh,gel){
   int matid = gel->MaterialId();
 #ifdef PZDEBUG
   if (mesh.FindMaterial(matid) == 0) {
+      std::cout << "Creating element " << __PRETTY_FUNCTION__ << " matid " << matid << std::endl;
+      std::cout << "Material not found, bailing out \n";
     DebugStop();
   }
 #endif

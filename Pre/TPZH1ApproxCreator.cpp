@@ -611,7 +611,12 @@ void TPZH1ApproxCreator::GroupAndCondenseElements(TPZMultiphysicsCompMesh *mcmes
     //    std::cout << "Groups of connects " << groupindex << std::endl;
     for (int64_t el = 0; el<nel; el++) {
         int64_t groupnum = groupnumber[el];
-        if(groupnum == -1) continue;
+        if(groupnum == -1) {
+            TPZCompEl *cel = mcmesh->Element(el);
+            TPZGeoEl *gel = cel->Reference();
+            int matid = gel->MaterialId();
+            continue;
+        }
         auto iter = groupmap.find(groupnum);
         if (groupmap.find(groupnum) == groupmap.end()) {
             int64_t index;
