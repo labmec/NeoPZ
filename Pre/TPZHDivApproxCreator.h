@@ -134,7 +134,7 @@ private:
     /// Creates a vector with the size of nelements with the group to which each element belongs for condensations
     /// @param cmesh computational mesh
     /// @param elementgroup vector with groups by element
-    void AssociateElements(TPZCompMesh *cmesh, TPZVec<int64_t> &elementgroup);
+    static void AssociateElements(TPZCompMesh *cmesh, TPZVec<int64_t> &elementgroup);
 
     /// Creates a vector with the size of nelements with the group to which each element belongs for condensations
     /// @param cmesh computational mesh

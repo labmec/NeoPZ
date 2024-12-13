@@ -35,6 +35,10 @@ public:
     /// Driver function. Will create the atomic meshes (HDiv, L2, etc.) and an associate multiphysics mesh
     TPZCompMesh *CreateClassicH1ApproximationSpace();
 
+    /// Group and condense computational elements
+    void GroupAndCondenseElements(TPZMultiphysicsCompMesh *mcmesh) override;
+
+
 private:
 
     /// Create boundary HDiv space/cmesh
@@ -50,7 +54,7 @@ private:
     /// Insert material objects into L2-mesh
     void InsertL2MaterialObjects(TPZCompMesh * L2Mesh);
 
-    /// Create interface elements on hybridizes spaces
+    /// Create interface elements on hybridized spaces
     void AddInterfaceComputationalElements(TPZMultiphysicsCompMesh *mcmesh);
 
     /// Find neighbouring flux element among equal and lower level computational elements.
@@ -69,9 +73,6 @@ private:
         DebugStop();
         return nullptr;
     }
-
-    /// Group and condense computational elements
-    void GroupAndCondenseElements(TPZMultiphysicsCompMesh *mcmesh) override;
 
     /// Associate elements with a volumetric element in hybridized spaces;
     /// Groups volumetric, wrap and interface elements in standard hybridizations;
