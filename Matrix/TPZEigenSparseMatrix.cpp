@@ -220,6 +220,7 @@ int TPZEigenSparseMatrix<TVar>::Decompose(const DecomposeType dt)
     else {
         DebugStop();
     }
+    this->SetIsDecomposed(dt);
     return 0;
 }
 /**

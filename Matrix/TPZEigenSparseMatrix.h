@@ -57,13 +57,18 @@ public:
     TPZEigenSparseMatrix();
     TPZEigenSparseMatrix(const int64_t rows,const int64_t cols );
     TPZEigenSparseMatrix(const TPZEigenSparseMatrix<TVar>&) = default;
+    TPZEigenSparseMatrix(const TPZSYsmpMatrix<TVar>&copy) : TPZSYsmpMatrix<TVar>(copy) {
+
+    }
     TPZEigenSparseMatrix(TPZEigenSparseMatrix<TVar>&&) = default;
     
     
     TPZEigenSparseMatrix &operator=(const TPZEigenSparseMatrix<TVar> &copy) = default;
     TPZEigenSparseMatrix &operator=(TPZEigenSparseMatrix<TVar> &&copy) = default;
     
-    inline TPZEigenSparseMatrix<TVar>*NewMatrix() const override {return new TPZEigenSparseMatrix<TVar>();}
+    inline TPZEigenSparseMatrix<TVar>*NewMatrix() const override {
+        return new TPZEigenSparseMatrix<TVar>();
+        }
     CLONEDEF(TPZEigenSparseMatrix)
     
     virtual ~TPZEigenSparseMatrix();
