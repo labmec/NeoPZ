@@ -493,8 +493,12 @@ void TPZMultiphysicsElement::TransferMultiphysicsElementSolutionT()
             TPZFMatrix<TVar> &celSol = cel->Mesh()->Solution();
             TPZFMatrix<TVar> &meshSol = this->Mesh()->Solution();
 
-            int nrows = meshSol.Rows();
+#ifdef PZDEBUG
             int ncols = meshSol.Cols();
+            if (celSol.Cols() != ncols) { //The number of solution vectors should be the same for all meshes
+                DebugStop();
+            }
+#endif
 //            celSol.Resize(nrows,ncols);
             for (int ibl = 0; ibl < blsz; ibl++) {
                 for (int iload = 0; iload < nload; iload++) {
