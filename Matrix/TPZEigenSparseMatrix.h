@@ -35,14 +35,14 @@ class TPZEigenSparseMatrix : public TPZSYsmpMatrix<TVar> {
     
     typedef Eigen::Map<SpMat> EigenSparse;
     typedef Eigen::Map<SpMatInt> EigenSparseInt;
-    typedef Eigen::SimplicialLLT<EigenSparse> EigenCholesky;
+    typedef Eigen::SimplicialLLT<SpMat> EigenCholesky;
     
-    typedef Eigen::SparseLU<EigenSparse> EigenLU;
+    typedef Eigen::SparseLU<SpMat> EigenLU;
     
 #if defined(MACOSX) && defined(USEACCELERATESUPPORT)
     typedef Eigen::AccelerateLDLT<SpMatInt,Eigen::Lower | Eigen::Symmetric> EigenLDLT;
 #else
-    typedef Eigen::SimplicialLDLT<EigenSparse> EigenLDLT;
+    typedef Eigen::SimplicialLDLT<SpMat> EigenLDLT;
 #endif
     
 

@@ -232,7 +232,6 @@ template<class TVar>
 int TPZEigenSparseMatrix<TVar>::SolveDirect ( TPZFMatrix<TVar>& F , const DecomposeType dt)
 {
     Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > b(&F(0,0),F.Rows());
-    
     if(dt == ECholesky) {
         if(fLDLT || fLU) DebugStop();
         if(!fCholesky) Decompose(dt);
@@ -241,6 +240,8 @@ int TPZEigenSparseMatrix<TVar>::SolveDirect ( TPZFMatrix<TVar>& F , const Decomp
     else if(dt == ELDLt) {
         if(fCholesky || fLU) DebugStop();
         if(!fLDLT) Decompose(dt);
+        using namespace Eigen;
+        SimplicialLDLT<SparseMatrix<double,0,int64_t> > *solver = fLDLT;
         b = fLDLT->solve(b);
     }
     else if(dt == ELU) {
@@ -257,8 +258,9 @@ int TPZEigenSparseMatrix<TVar>::SolveDirect ( TPZFMatrix<TVar>& F , const Decomp
 template<class TVar>
 int TPZEigenSparseMatrix<TVar>::SolveDirect ( TPZFMatrix<TVar>& F , const DecomposeType dt) const
 {
-    Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > b(&F(0,0),F.Rows());
-    
+    const Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > b(&F(0,0),F.Rows());
+    Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > bres(&F(0,0),F.Rows());
+
     if(fCholesky) {
         if(dt != ECholesky) DebugStop();
         b = fCholesky->solve(b);
@@ -319,7 +321,7 @@ int TPZEigenSparseMatrix<TVar>::ClassId() const{
 }
 
 template class TPZEigenSparseMatrix<double>;
-template class TPZEigenSparseMatrix<float>;
+//template class TPZEigenSparseMatrix<float>;
 
 #ifndef USEACCELERATESUPPORT
 template class TPZEigenSparseMatrix<long double>;

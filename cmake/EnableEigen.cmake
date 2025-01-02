@@ -7,7 +7,7 @@ function(enable_eigen target)
         if(NOT EIGEN3_FOUND)
             # Couldn't load via target, so fall back to allowing module mode finding, which will pick up
             # tools/FindEigen3.cmake
-            find_package(Eigen3 3.4 QUIET)
+            # find_package(Eigen3 3.4 QUIET)
         endif()
         if(NOT EIGEN3_FOUND)
             set(EIGEN3_VERSION_STRING "7dd3dda3daa218147557b33f8d05b3b023f05f7d")
