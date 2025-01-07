@@ -526,6 +526,7 @@ void
 TPZGeoElRefLess<TGeo>::X(TPZVec<REAL> &coordinate,TPZVec<REAL> &result) const {
 #ifdef PZDEBUG
     if(result.size() != 3) DebugStop();
+    if(coordinate.size() != fGeo.Dimension) DebugStop();
 #endif
     TPZFNMatrix<54,REAL> cornerco(3,fGeo.NNodes);
     CornerCoordinates(cornerco);

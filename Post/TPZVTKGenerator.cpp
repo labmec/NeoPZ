@@ -442,6 +442,7 @@ void TPZVTKGenerator::FillReferenceEl(TPZVec<TPZManVector<REAL,3>> &ref_coords,
   {
     auto &node = refpmesh->NodeVec()[in];
     node.GetCoordinates(ref_coords[in]);
+    ref_coords[in].resize(TOPOL::Dimension);
   }
 
   //fill cells in the divided reference element
