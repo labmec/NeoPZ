@@ -116,6 +116,9 @@ public:
     /// Get Problem type
     const ProblemType &ProbType() const {return fProbType;}
 
+    /// return number of meshes
+    const int NumMeshes() const {return fNumMeshes;}
+
     /// Set cmeshes default polynomial order
     void SetDefaultOrder(const int ord){
         fDefaultPOrder = ord;
