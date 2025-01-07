@@ -113,7 +113,7 @@ void TPZHDivApproxCreator::CreateAtomicMeshes(TPZManVector<TPZCompMesh*,7>& mesh
     int countMesh = 0;
     meshvec[countMesh++] = CreateHDivSpace();
     meshvec[countMesh-1]->SetName("HDiv");
-    lagLevelCounter = 1;
+    // lagLevelCounter = 1;
     meshvec[countMesh++] = CreateL2Space(fDefaultPOrder,lagLevelCounter++);
     meshvec[countMesh-1]->SetName("Pressure");
 
@@ -247,7 +247,7 @@ TPZCompMesh * TPZHDivApproxCreator::CreateHDivSpace(){
             nstate = mat->NStateVariables(); // here we assume that all materials have same nstatevars
             TPZNullMaterial<> *nullmat = new TPZNullMaterial<>(mat->Id(),mat->Dimension(),mat->NStateVariables());
             cmesh->InsertMaterialObject(nullmat);
-        } else if (bnd){
+        } else if (bnd && bnd->Material()->Dimension() == dim){
             // if (bnd->Dimension() != dim-1) DebugStop();
             TPZNullMaterial<> *nullmat = new TPZNullMaterial<>(mat->Id(),dim-1,mat->NStateVariables());
             cmesh->InsertMaterialObject(nullmat);
