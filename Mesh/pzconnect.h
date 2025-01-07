@@ -201,7 +201,7 @@ public:
 	void SetSequenceNumber(int64_t i) {fSequenceNumber = i;}
 	
 	/** @brief Set the order of the shapefunction associated with the connect */
-	void SetOrder(int order, int64_t index) {
+	void SetOrder(int order, int64_t index = -1) {
 #ifdef PZDEBUG
         if(order < 0 || order > 255)
         {
