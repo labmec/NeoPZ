@@ -1,6 +1,6 @@
 function(enable_mkl target)
   find_package(MKL REQUIRED)
-
+  
   set(MKL_THREAD_MODEL_TYPES "Options are: seq, tbb or omp(default)"
     "\nseq: Sequential\ntbb:TBB\nOMP:OpenMP")
   if(NOT MKL_THREAD_MODEL AND TARGET mkl::mkl_intel_64bit_tbb_dyn AND _mkl_dep_found_TBB)
@@ -33,6 +33,7 @@ function(enable_mkl target)
   #if(APPLE)
  #     target_link_libraries(${target} PRIVATE ${_mkl_core_lib})
   #endif()
+  message(STATUS "MKL include dir: ${MKL_INCLUDE_DIR}")
   target_include_directories(${target} PRIVATE ${MKL_INCLUDE_DIR})
   target_compile_definitions(${target} PRIVATE USING_MKL)
   target_compile_definitions(${target} PRIVATE MKL_ILP64)
