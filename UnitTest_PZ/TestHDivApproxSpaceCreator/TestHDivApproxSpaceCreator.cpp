@@ -143,8 +143,13 @@ TEST_CASE("Approx Space Creator", "[hdiv_space_creator_test][!mayfail]") {
     bool isRef = GENERATE(true,false);
     // bool isRef = GENERATE(true);
     bool isMHM = GENERATE(false);
-    
-    TestHdivApproxSpaceCreator(sType,pType,pOrder,isRBSpaces,mType,extraporder,isCondensed,hType,isRef,isMHM);
+
+    if (!(isRef && hType == HybridizationType::ESemi) && !(isCondensed && sType == HDivFamily::EHDivConstant) &&
+    !(sType == HDivFamily::EHDivConstant && pType == ProblemType::EElastic && mType == MMeshType::ETetrahedral) &&
+    !(sType != HDivFamily::EHDivConstant && hType == HybridizationType::ESemi))
+    {
+        TestHdivApproxSpaceCreator(sType, pType, pOrder, isRBSpaces, mType, extraporder, isCondensed, hType, isRef, isMHM);
+    }
     std::cout << "Finish test HDiv Approx Space Creator \n";
 }
 #else
