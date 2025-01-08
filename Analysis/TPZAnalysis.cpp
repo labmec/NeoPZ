@@ -276,79 +276,84 @@ void TPZAnalysis::CleanUp()
 }
 
 
-void TPZAnalysis::OptimizeBandwidth() {
-	//enquanto nao compilamos o BOOST no windows, vai o sloan antigo
-#ifdef WIN32
-	if(!fCompMesh) return;
-//    fCompMesh->InitializeBlock();
-	TPZVec<int64_t> perm,iperm;
-	
-	TPZStack<int64_t> elgraph;
-	TPZStack<int64_t> elgraphindex;
-	int64_t nindep = fCompMesh->NIndependentConnects();
-	fCompMesh->ComputeElGraph(elgraph,elgraphindex);
-	int64_t nel = elgraphindex.NElements()-1;
-	TPZSloan sloan(nel,nindep);
-	sloan.SetElementGraph(elgraph,elgraphindex);
-	sloan.Resequence(perm,iperm);
-	fCompMesh->Permute(perm);
-#else
-	if(!fCompMesh) return;
-//    fCompMesh->InitializeBlock();
-	
-	TPZVec<int64_t> perm,iperm;
-	
-	TPZStack<int64_t> elgraph,elgraphindex;
-	int64_t nindep = fCompMesh->NIndependentConnects();
-    
-    /// if there are no connects, there is no bandwidth to be optimized
-    if(nindep == 0) return;
-    
-	fCompMesh->ComputeElGraph(elgraph,elgraphindex);
-	int64_t nel = elgraphindex.NElements()-1;
-	int64_t el,ncel = fCompMesh->NElements();
-	int maxelcon = 0;
-	for(el = 0; el<ncel; el++)
-	{
-		TPZCompEl *cel = fCompMesh->ElementVec()[el];
-		if(!cel) continue;
-		std::set<int64_t> indepconlist,depconlist;
-		cel->BuildConnectList(indepconlist,depconlist);
-		int64_t locnindep = indepconlist.size();
-		maxelcon = maxelcon < locnindep ? locnindep : maxelcon;
-	}
-	fRenumber->SetElementsNodes(nel,nindep);
-	fRenumber->SetElementGraph(elgraph,elgraphindex);
-#ifdef PZ_LOG2
-    if(logger.isDebugEnabled())
-    {
-        std::stringstream sout;
-        fRenumber->Print(elgraph, elgraphindex, "Elgraph of submesh", sout);
-        LOGPZ_DEBUG(logger, sout.str())
+    void TPZAnalysis::OptimizeBandwidth() {
+        //enquanto nao compilamos o BOOST no windows, vai o sloan antigo
+    #ifdef WIN32
+        if(!fCompMesh) return;
+    //    fCompMesh->InitializeBlock();
+        TPZVec<int64_t> perm,iperm;
+        
+        TPZStack<int64_t> elgraph;
+        TPZStack<int64_t> elgraphindex;
+        int64_t nindep = fCompMesh->NIndependentConnects();
+        fCompMesh->ComputeElGraph(elgraph,elgraphindex);
+        int64_t nel = elgraphindex.NElements()-1;
+        TPZSloan sloan(nel,nindep);
+        sloan.SetElementGraph(elgraph,elgraphindex);
+        sloan.Resequence(perm,iperm);
+        fCompMesh->Permute(perm);
+    #else
+        if(!fCompMesh) return;
+    //    fCompMesh->InitializeBlock();
+        
+        TPZVec<int64_t> perm,iperm;
+        
+        TPZStack<int64_t> elgraph,elgraphindex;
+        int64_t nindep = fCompMesh->NIndependentConnects();
+        
+        /// if there are no connects, there is no bandwidth to be optimized
+        if(nindep == 0) return;
+        
+        fCompMesh->ComputeElGraph(elgraph,elgraphindex);
+        int64_t nel = elgraphindex.NElements()-1;
+        int64_t el,ncel = fCompMesh->NElements();
+        int maxelcon = 0;
+        for(el = 0; el<ncel; el++)
+        {
+            TPZCompEl *cel = fCompMesh->ElementVec()[el];
+            if(!cel) 
+            
+            continue;
+            std::set<int64_t> indepconlist,depconlist;
+            cel->BuildConnectList(indepconlist,depconlist);
+            int64_t locnindep = 
+            indepconlist.size();
+            maxelcon = maxelcon < locnindep ? locnindep : maxelcon;
+        }
+        fRenumber->SetElementsNodes(nel,nindep);
+        fRenumber->SetElementGraph(elgraph,elgraphindex);
+    #ifdef PZ_LOG2
+        if(logger.isDebugEnabled())
+        {
+            std::stringstream sout;
+            fRenumber->Print(elgraph, elgraphindex, "Elgraph of submesh", sout);
+            LOGPZ_DEBUG(logger, sout.str())
+        }
+    #endif
+        bool shouldstop = false;
+        try {
+            fRenumber->Resequence(perm,iperm);
+        } catch(...)
+        {
+            fRenumber->PlotElementGroups("ElementGroups.vtk", fCompMesh);
+            std::ofstream out("fElementGroups.txt");
+            fCompMesh->Print(out);
+            shouldstop = true;
+        }
+        if(shouldstop) 
+        
+        DebugStop();
+        
+        fCompMesh->Permute(perm);
+        if (nel > 100000) {
+            std::cout << "Applying Saddle Permute\n";
+        }
+        fCompMesh->SaddlePermute();
+    //    fCompMesh->SaddlePermute2();
+        
+    #endif
+        
     }
-#endif
-    bool shouldstop = false;
-    try {
-        fRenumber->Resequence(perm,iperm);
-    } catch(...)
-    {
-        fRenumber->PlotElementGroups("ElementGroups.vtk", fCompMesh);
-        std::ofstream out("fElementGroups.txt");
-        fCompMesh->Print(out);
-        shouldstop = true;
-    }
-    if(shouldstop) DebugStop();
-    
-	fCompMesh->Permute(perm);
-    if (nel > 100000) {
-        std::cout << "Applying Saddle Permute\n";
-    }
-    fCompMesh->SaddlePermute();
-//    fCompMesh->SaddlePermute2();
-	
-#endif
-	
-}
 
 /** @brief Determine the number of load cases from the material objects and return its value */
 /**
