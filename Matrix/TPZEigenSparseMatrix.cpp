@@ -258,24 +258,25 @@ int TPZEigenSparseMatrix<TVar>::SolveDirect ( TPZFMatrix<TVar>& F , const Decomp
 template<class TVar>
 int TPZEigenSparseMatrix<TVar>::SolveDirect ( TPZFMatrix<TVar>& F , const DecomposeType dt) const
 {
-    const Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > b(&F(0,0),F.Rows());
-    Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > bres(&F(0,0),F.Rows());
+    // const Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > b(&F(0,0),F.Rows());
+    // Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > bres(&F(0,0),F.Rows());
 
-    if(fCholesky) {
-        if(dt != ECholesky) DebugStop();
-        b = fCholesky->solve(b);
-    }
-    else if(fLDLT) {
-        if(dt != ELDLt) DebugStop();
-        b = fLDLT->solve(b);
-    }
-    else if(fLU) {
-        if(dt != ELU) DebugStop();
-        b = fLU->solve(b);
-    }
-    else{
-        DebugStop();
-    }
+    // if(fCholesky) {
+    //     if(dt != ECholesky) DebugStop();
+    //     b = fCholesky->solve(b);
+    // }
+    // else if(fLDLT) {
+    //     if(dt != ELDLt) DebugStop();
+    //     b = fLDLT->solve(b);
+    // }
+    // else if(fLU) {
+    //     if(dt != ELU) DebugStop();
+    //     b = fLU->solve(b);
+    // }
+    // else{
+    //     DebugStop();
+    // }
+    DebugStop();
     return 0;
 }
 
