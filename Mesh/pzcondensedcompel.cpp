@@ -321,12 +321,12 @@ void TPZCondensedCompElT<TVar>::Resequence()
     
 
     
-    fCondensed.SetSolver(autostep);
     if(fKeepMatrix == true)
     {
 //        fCondensed.Redim(nint+next,nint);
         fCondensed.Redim(fNumTotalEqs,fNumInternalEqs);
     }
+    fCondensed.SetSolver(autostep);
 }
 
 /// Assemble the stiffness matrix in locally kept datastructure

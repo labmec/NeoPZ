@@ -197,7 +197,7 @@ protected:
     void Resequence() override;
 public:
     
-    TPZCondensedCompElT(TPZCompEl *ref, bool keepmatrix = true);
+    TPZCondensedCompElT(TPZCompEl *ref, bool keepmatrix = false);
     
     /** @brief create a copy of the condensed computational element in the other mesh */
     TPZCondensedCompElT(const TPZCondensedCompElT<TVar> &copy, TPZCompMesh &mesh);
