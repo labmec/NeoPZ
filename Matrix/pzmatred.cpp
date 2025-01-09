@@ -32,7 +32,7 @@ static int logger;
 template<class TVar, class TSideMatrix>
 TPZMatRed<TVar,  TSideMatrix>::TPZMatRed () : 
 TPZRegisterClassId(&TPZMatRed::ClassId),
-TPZMatrix<TVar>( 0, 0 ), fK11(0,0),fK01(0,0),fK10(0,0),fF0(0,0),fF1(0,0), fMaxRigidBodyModes(0), fNumberRigidBodyModes(0)
+TPZMatrix<TVar>( 0, 0 ), fK11(0,0),fK01(0,0),fK10(0,0),fF0(0,1),fF1(0,1), fMaxRigidBodyModes(0), fNumberRigidBodyModes(0)
 {
 	fDim0=0;
 	fDim1=0;
