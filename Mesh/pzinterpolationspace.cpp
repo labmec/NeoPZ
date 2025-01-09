@@ -142,6 +142,7 @@ void TPZInterpolationSpace::ReallyComputeSolutionT(TPZMaterialDataT<TVar>& data)
     const TPZFMatrix<REAL> &phi = data.phi;
     const TPZFMatrix<REAL> &dphix = data.dphix;
     const TPZFMatrix<REAL> &axes = data.axes;
+	const int dim = axes.Rows();
     TPZSolVec<TVar> &sol = data.sol;
     TPZGradSolVec<TVar> &dsol = data.dsol;
 	const int nstate = this->Material()->NStateVariables();
@@ -157,28 +158,60 @@ void TPZInterpolationSpace::ReallyComputeSolutionT(TPZMaterialDataT<TVar>& data)
     for (int is = 0; is<numbersol; is++) {
         sol[is].Resize(solVecSize);
         sol[is].Fill(0.);
-        dsol[is].Redim(dphix.Rows(), solVecSize);
-        dsol[is].Zero();
-    }	
-	int64_t iv = 0;
-	for(int in=0; in<ncon; in++) {
-		TPZConnect *df = &Connect(in);
-		const int64_t dfseq = df->SequenceNumber();
-		const int dfvar = block.Size(dfseq);
-		const int64_t pos = block.Position(dfseq);
-		for(int jn=0; jn<dfvar; jn++) {
-            for (int64_t is=0; is<numbersol; is++) {
-                sol[is][iv%nstate] +=
-                    (TVar)phi.Get(iv/nstate,0)*MeshSol(pos+jn,is);
-                for(auto d=0; d<dphix.Rows(); d++){
-                    dsol[is](d,iv%nstate) +=
-                        (TVar)dphix.Get(d,iv/nstate)*MeshSol(pos+jn,is);
-                }
-            }
-			iv++;
+		if(data.fShapeType == TPZMaterialData::EScalarShape) {
+	        dsol[is].Redim(dphix.Rows(), solVecSize);
+		} else if(data.fShapeType == TPZMaterialData::EVecShape) {
+			dsol[is].Redim(dim, solVecSize);
 		}
+        dsol[is].Zero();
+    }
+	if(data.fShapeType == TPZMaterialData::EScalarShape) {
+		int64_t iv = 0;
+		for(int in=0; in<ncon; in++) {
+			TPZConnect *df = &Connect(in);
+			const int64_t dfseq = df->SequenceNumber();
+			const int dfvar = block.Size(dfseq);
+			const int64_t pos = block.Position(dfseq);
+			for(int jn=0; jn<dfvar; jn++) {
+				for (int64_t is=0; is<numbersol; is++) {
+					sol[is][iv%nstate] +=
+						(TVar)phi.Get(iv/nstate,0)*MeshSol(pos+jn,is);
+					for(auto d=0; d<dphix.Rows(); d++){
+						dsol[is](d,iv%nstate) +=
+							(TVar)dphix.Get(d,iv/nstate)*MeshSol(pos+jn,is);
+					}
+				}
+				iv++;
+			}
+		}
+	} else if(data.fShapeType == TPZMaterialData::EVecShape) {
+		int64_t iv = 0;
+		for(int in=0; in<ncon; in++) {
+			TPZConnect *df = &Connect(in);
+			const int64_t dfseq = df->SequenceNumber();
+			const int dfvar = block.Size(dfseq);
+			const int64_t pos = block.Position(dfseq);
+			// loop over the multiplying coefficients of the connect dfvar = nshape*nstate
+			// but for each one of those there is a separate phi, dphix
+			for(int jn=0; jn<dfvar; jn++) {
+				for (int64_t is=0; is<numbersol; is++) {
+					auto meshsol = MeshSol(pos+jn,is);
+					for(int ist = 0; ist < nstate; ist++) {
+						sol[is][ist] += (TVar)phi(ist,iv)*MeshSol(pos+jn,is);
+						for(int d = 0; d < dim; d++) {
+							dsol[is](d,ist) += (TVar)dphix(d+ist*dim,iv)*MeshSol(pos+jn,is);
+						}
+					}
+				}
+				iv++;
+			}
+		}
+		if(iv != phi.Cols()) {
+			DebugStop();
+		}
+	} else {
+		DebugStop();
 	}
-	
 }//method
 
 
