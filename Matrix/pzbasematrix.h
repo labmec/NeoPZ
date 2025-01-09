@@ -156,7 +156,11 @@ public:
 
   /** @brief decompose the system of equations acording to the decomposition
    * scheme */
-    virtual int Decompose(const DecomposeType dt) = 0;
+    virtual int Decompose(const DecomposeType dt) {
+      std::cout << "TPZBaseMatrix::Decompose is not implemented\n";
+      DebugStop();
+      return 0;
+    }
 
   /** @brief It prints the matrix data in a MatrixFormat Rows X Cols */
   virtual void Print(const char *name, std::ostream &out = std::cout ,const MatrixOutputFormat form = EFormatted) const = 0;
