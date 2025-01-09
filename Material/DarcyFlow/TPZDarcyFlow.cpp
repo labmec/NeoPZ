@@ -182,6 +182,11 @@ int TPZDarcyFlow::NSolutionVariables(int var) const {
 
 void TPZDarcyFlow::Solution(const TPZMaterialDataT<STATE> &data, int var, TPZVec<STATE> &solOut) {
 
+    if(data.fShapeType == TPZMaterialData::EEmpty) {
+        solOut.Resize(NSolutionVariables(var));
+        solOut.Fill(0.);
+        return;
+    }
     switch (var) {
         case 1: {
             // Solution/Pressure

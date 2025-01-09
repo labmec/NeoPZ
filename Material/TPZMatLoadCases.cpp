@@ -90,6 +90,11 @@ const TPZVec<TVar>& TPZMatLoadCasesBC<TVar>::GetBCRhsVal(int i) const
     if (valVecSize == 0){
         auto tmp =
             dynamic_cast<const TPZBndCondT<TVar>*>(this);
+        if(!tmp){
+            PZError<<__PRETTY_FUNCTION__;
+            PZError<<"\nERROR: Invalid reference for creating BC.\nAborting...\n";
+            DebugStop();
+        }
         return tmp->Val2();        
     }else{
         return fBCRhsValVec[i];

@@ -160,10 +160,13 @@ void TPZElasticity2D::Contribute(const TPZMaterialDataT<STATE> &data,
 	REAL nu1 = 1. - nu;//(1-nu)
 	REAL nu2 = (1.-2.*nu)/2.;
 	REAL F = E/((1.+nu)*(1.-2.*nu));
+    // std::cout << "nu1F = " << nu1*F << " \nnu2F = " << nu2*F << " \nF = " << F << "\nnuF = "<< nu*F << std::endl;
 	
 	for( int in = 0; in < phr; in++ ) {
 		du(0,0) = dphi(0,in)*axes(0,0)+dphi(1,in)*axes(1,0);//dvx
 		du(1,0) = dphi(0,in)*axes(0,1)+dphi(1,in)*axes(1,1);//dvy
+        // du(0,0) = dphi(0,in);
+        // du(1,0) = dphi(1,in);
 		
         for (int col = 0; col < efc; col++) 
         {
@@ -173,6 +176,8 @@ void TPZElasticity2D::Contribute(const TPZMaterialDataT<STATE> &data,
 		for( int jn = 0; jn < phr; jn++ ) {
 			du(0,1) = dphi(0,jn)*axes(0,0)+dphi(1,jn)*axes(1,0);//dux
 			du(1,1) = dphi(0,jn)*axes(0,1)+dphi(1,jn)*axes(1,1);//duy
+            // du(0,1) = dphi(0,jn);
+            // du(1,1) = dphi(1,jn);
 			
 			
 			if (fPlaneStress != 1){
@@ -235,8 +240,7 @@ void TPZElasticity2D::ContributeBC(const TPZMaterialDataT<STATE> &data,
     
 	int phr = phi.Rows();
 	short in,jn;
-    auto  bcLoadCases =
-        dynamic_cast<TPZMatLoadCasesBC<STATE>&>(bc);
+    auto  bcLoadCases = dynamic_cast<TPZMatLoadCasesBC<STATE>&>(bc);
     if (ef.Cols() != bcLoadCases.NumLoadCases()) {
         DebugStop();
     }
@@ -274,8 +278,8 @@ void TPZElasticity2D::ContributeBC(const TPZMaterialDataT<STATE> &data,
             for(in = 0 ; in < phr; in++) {
                 for (int il = 0; il<NumLoadCases(); il++)
                 {
-                    ef(2*in,il)   += BIGNUMBER * v2[0] * phi(in,0) * weight;        // forced v2 displacement
-                    ef(2*in+1,il) += BIGNUMBER * v2[1] * phi(in,0) * weight;        // forced v2 displacement
+                    ef(2*in,il)   += BIGNUMBER * v2[2*il+0] * phi(in,0) * weight;        // forced v2 displacement
+                    ef(2*in+1,il) += BIGNUMBER * v2[2*il+1] * phi(in,0) * weight;        // forced v2 displacement
                 }
                 for (jn = 0 ; jn < phi.Rows(); jn++)
                 {
@@ -292,8 +296,8 @@ void TPZElasticity2D::ContributeBC(const TPZMaterialDataT<STATE> &data,
             {
                 for (int il = 0; il <fNumLoadCases; il++) 
                 {
-                    ef(2*in,il) += v2[0] * phi(in,0) * weight;        // force in x direction
-                    ef(2*in+1,il) +=  v2[1] * phi(in,0) * weight;      // force in y direction
+                    ef(2*in,il) += v2[2*il+0] * phi(in,0) * weight;        // force in x direction
+                    ef(2*in+1,il) +=  v2[2*il+1] * phi(in,0) * weight;      // force in y direction
                 }
             }
         }
@@ -306,8 +310,8 @@ void TPZElasticity2D::ContributeBC(const TPZMaterialDataT<STATE> &data,
                 for (int il = 0; il <fNumLoadCases; il++) 
                 {
 //                    const auto &v2 = bcLoadCases.GetBCRhsVal(il);
-                    ef(2*in,il) += v2[0] * phi(in,0) * weight;        // force in x direction
-                    ef(2*in+1,il) += v2[1] * phi(in,0) * weight;      // forced in y direction
+                    ef(2*in,il) += v2[2*il+0] * phi(in,0) * weight;        // force in x direction
+                    ef(2*in+1,il) += v2[2*il+1] * phi(in,0) * weight;      // forced in y direction
                 }
                 
                 for (jn = 0 ; jn < phi.Rows(); jn++) {
@@ -407,7 +411,7 @@ void TPZElasticity2D::ContributeBC(const TPZMaterialDataT<STATE> &data,
 
 void TPZElasticity2D::FillDataRequirements(TPZMaterialData &data) const 
 {
-    data.fNeedsSol = true;
+    data.fNeedsSol = false;
     data.fNeedsNormal = false;
 
 }
@@ -819,13 +823,14 @@ void TPZElasticity2D::ContributeVecShape(const TPZMaterialDataT<STATE> &data,
 	efc = ef.Cols();
 	ekr = ek.Rows();
 	ekc = ek.Cols();
+    TPZManVector<STATE,3> force(ff);
 	
 	if(fForcingFunction) {            // phi(in, 0) :  node in associated forcing function
 		TPZManVector<STATE> res(3);
 		fForcingFunction(data.x,res);
-		ff[0] = res[0];
-		ff[1] = res[1];
-		ff[2] = res[2];
+		force[0] = res[0];
+		force[1] = res[1];
+		force[2] = res[2];
 	}
 	
     REAL E(fE_def), nu(fnu_def);
@@ -859,8 +864,8 @@ void TPZElasticity2D::ContributeVecShape(const TPZMaterialDataT<STATE> &data,
 		
         for (int col = 0; col < efc; col++) 
         {
-            ef(in,col) += weight*(   ff[0] * phi(0, in)- dphix_i(0,0)*fPreStressXX - dphix_i(1,0)*fPreStressXY
-                                   + ff[1] * phi(1, in)- dphiy_i(0,0)*fPreStressYY - dphiy_i(1,0)*fPreStressXY);
+            ef(in,col) += weight*(   force[0] * phi(0, in)- dphix_i(0,0)*fPreStressXX - dphix_i(1,0)*fPreStressXY
+                                   + force[1] * phi(1, in)- dphiy_i(0,0)*fPreStressYY - dphiy_i(1,0)*fPreStressXY);
         }		
 		for( int jn = 0; jn < phc; jn++ ) {
             
@@ -901,23 +906,51 @@ void TPZElasticity2D::ContributeVecShapeBC(const TPZMaterialDataT<STATE> &data,
                                            TPZFMatrix<STATE> &ef,
                                            TPZBndCondT<STATE> &bc) {
     
-    const TPZFMatrix<REAL> &phi = data.fH1.fPhi;
+    const TPZFMatrix<REAL> &phi = data.phi;
     
 	const REAL &BIGNUMBER  = TPZMaterial::fBigNumber;
     
 	int phc = phi.Cols();
 	short in,jn;
-	auto  bcLoadCases =
+        auto  bcLoadCases = dynamic_cast<TPZMatLoadCasesBC<STATE>&>(bc);
+    if (ef.Cols() != bcLoadCases.NumLoadCases()) {
+        DebugStop();
+    }
+	
+//		In general when the problem is  needed to stablish any convention for ContributeBC implementations
+
+    int nstate = NStateVariables();
+
+    const auto nloads = this->fNumLoadCases;
+    constexpr int nvars = 2;
+    const auto &bcNumLoads =
         dynamic_cast<TPZMatLoadCasesBC<STATE>&>(bc);
+
+    TPZManVector<STATE,10> v2(nvars*nloads);
+    TPZFNMatrix<30,STATE> v1(nvars,1);
+	[&bc = std::as_const(bc),
+     &bcNumLoads = std::as_const(bcNumLoads),
+     &data = std::as_const(data),
+     nvars,nloads]( TPZFMatrix<STATE> &v1, TPZVec<STATE> &v2) {
+        if(bc.HasForcingFunctionBC()){
+            bc.ForcingFunctionBC()(data.x,v2,v1);
+        }else {
+            for(auto l = 0; l < nloads; l++){
+                const auto &val2 = bcNumLoads.GetBCRhsVal(l);
+                for(auto i = 0; i < nvars; i++)
+                    v2[nvars*l+i] = val2[i];
+            }
+            v1 = bc.Val1();
+        }
+    }(v1,v2);
+
+	// auto  bcLoadCases = dynamic_cast<TPZMatLoadCasesBC<STATE>&>(bc);
 	switch (bc.Type()) {
 		case 0 :			// Dirichlet condition
 			for(in = 0 ; in < phc; in++) {
                 for (int il = 0; il <fNumLoadCases; il++) 
                 {
-                    
-                    const auto &v2 = bcLoadCases.GetBCRhsVal(il);
-                    
-                    ef(in,il) += weight*BIGNUMBER*(v2[0]*phi(0,in) + v2[1] * phi(1,in));
+                    ef(in,il) += weight*BIGNUMBER*(v2[2*il+0]*phi(0,in) + v2[2*il+1] * phi(1,in));
                 }
 				for (jn = 0 ; jn < phc; jn++) {
                     
@@ -931,8 +964,7 @@ void TPZElasticity2D::ContributeVecShapeBC(const TPZMaterialDataT<STATE> &data,
             {
                 for (int il = 0; il <fNumLoadCases; il++) 
                 {
-                    const auto &v2 = bcLoadCases.GetBCRhsVal(il);
-                    ef(in,il)+= weight*(v2[0]*phi(0,in) + v2[1]*phi(1,in));
+                    ef(in,il)+= weight*(v2[2*il+0]*phi(0,in) + v2[2*il+1]*phi(1,in));
                 }
             }
 			break;
@@ -942,8 +974,7 @@ void TPZElasticity2D::ContributeVecShapeBC(const TPZMaterialDataT<STATE> &data,
             {
                 for (int il = 0; il <fNumLoadCases; il++) 
                 {
-                    const auto &v2 = bcLoadCases.GetBCRhsVal(il);
-                    ef(in,il) += weight * (v2[0]*phi(0,in) + v2[1]*phi(1,in));
+                    ef(in,il) += weight * (v2[2*il+0]*phi(0,in) + v2[2*il+1]*phi(1,in));
                 }
 				
 				for (jn = 0; jn <phc; jn++) {
