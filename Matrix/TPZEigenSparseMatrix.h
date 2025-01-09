@@ -10,7 +10,7 @@
 #include "pz_config.h"
 #include "pzmatrix.h"
 #include "pzfmatrix.h"
-#include "TPZYSMPMatrix.h"
+#include "TPZSYSMPMatrix.h"
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 
@@ -27,7 +27,7 @@
  * Defines operations on general sparse matrices stored in the (old) Yale Sparse Matrix Package format.
  */
 template<class TVar>
-class TPZEigenSparseMatrix : public TPZFYsmpMatrix<TVar> {
+class TPZEigenSparseMatrix : public TPZSYsmpMatrix<TVar> {
     
     public :
     typedef Eigen::SparseMatrix<TVar,0,int64_t> SpMat; // declares a column-major sparse matrix type of double
@@ -35,14 +35,14 @@ class TPZEigenSparseMatrix : public TPZFYsmpMatrix<TVar> {
     
     typedef Eigen::Map<SpMat> EigenSparse;
     typedef Eigen::Map<SpMatInt> EigenSparseInt;
-    typedef Eigen::SimplicialLLT<EigenSparse> EigenCholesky;
+    typedef Eigen::SimplicialLLT<SpMat> EigenCholesky;
     
-    typedef Eigen::SparseLU<EigenSparse> EigenLU;
+    typedef Eigen::SparseLU<SpMat> EigenLU;
     
 #if defined(MACOSX) && defined(USEACCELERATESUPPORT)
     typedef Eigen::AccelerateLDLT<SpMatInt,Eigen::Lower | Eigen::Symmetric> EigenLDLT;
 #else
-    typedef Eigen::SimplicialLDLT<EigenSparse> EigenLDLT;
+    typedef Eigen::SimplicialLDLT<SpMat> EigenLDLT;
 #endif
     
 
@@ -57,13 +57,18 @@ public:
     TPZEigenSparseMatrix();
     TPZEigenSparseMatrix(const int64_t rows,const int64_t cols );
     TPZEigenSparseMatrix(const TPZEigenSparseMatrix<TVar>&) = default;
+    TPZEigenSparseMatrix(const TPZSYsmpMatrix<TVar>&copy) : TPZSYsmpMatrix<TVar>(copy) {
+
+    }
     TPZEigenSparseMatrix(TPZEigenSparseMatrix<TVar>&&) = default;
     
     
     TPZEigenSparseMatrix &operator=(const TPZEigenSparseMatrix<TVar> &copy) = default;
     TPZEigenSparseMatrix &operator=(TPZEigenSparseMatrix<TVar> &&copy) = default;
     
-    inline TPZEigenSparseMatrix<TVar>*NewMatrix() const override {return new TPZEigenSparseMatrix<TVar>();}
+    inline TPZEigenSparseMatrix<TVar>*NewMatrix() const override {
+        return new TPZEigenSparseMatrix<TVar>();
+        }
     CLONEDEF(TPZEigenSparseMatrix)
     
     virtual ~TPZEigenSparseMatrix();

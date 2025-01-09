@@ -229,9 +229,9 @@ template class TPZSpStructMatrix<STATE,TPZStructMatrixOT<STATE>>;
 template class TPZSpStructMatrix<STATE,TPZStructMatrixTBBFlow<STATE>>;
 template class TPZSpStructMatrix<STATE,TPZStructMatrixOMPorTBB<STATE>>;
 
-#ifndef USING_EIGEN
+// #ifndef USING_EIGEN
 template class TPZSpStructMatrix<CSTATE,TPZStructMatrixOR<CSTATE>>;
 template class TPZSpStructMatrix<CSTATE,TPZStructMatrixOT<CSTATE>>;
 template class TPZSpStructMatrix<CSTATE,TPZStructMatrixTBBFlow<CSTATE>>;
 template class TPZSpStructMatrix<CSTATE,TPZStructMatrixOMPorTBB<CSTATE>>;
-#endif
+// #endif
