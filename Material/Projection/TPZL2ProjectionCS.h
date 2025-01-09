@@ -55,6 +55,18 @@ public:
      */
     void SetScaleFactor(REAL scale)
     {fScale = scale;}
+
+    void SetSol(const TPZVec<TVar> &sol)
+    {
+        fSol = sol;
+        if(fSol.size()!=fNStateVars){
+            PZError<<__PRETTY_FUNCTION__;
+            PZError<<"\nn state variables: "<<fNStateVars;
+            PZError<<"\nn solutions: "<<fSol.size();
+            PZError<<"\nAborting...\n";
+            DebugStop();
+        }
+    }
     
     [[nodiscard]] REAL ScaleFactor() const
     {return fScale;}
