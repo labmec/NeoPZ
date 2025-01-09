@@ -92,6 +92,7 @@ void ComputeFieldAtEl(TPZCompEl *cel,
       //position will change depending on field dimension
       auto pos = init_pos[i] + fdim*iv;
       sol.Resize(fdim);
+      sol.Fill(0.0);
       graphel.Solution(ip, field.Id(), sol);
 
       /**TPZPostProcEl<TVar>::Solution might resize the sol array

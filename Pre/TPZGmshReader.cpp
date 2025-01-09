@@ -350,6 +350,7 @@ void TPZGmshReader::ReadElements4(std::istream &read)
                     if (!m_read_undefined_physical_tag_elements) {
                         continue; // not adding elements without physical identifier
                     }
+                    std::cout << "Physical identifier " << physical_identifier << " with dim " << entity_dim << " not found in the physical tag list" << std::endl;
                 }
 
                 // std::cout << "Creating el for tag " << gmshPhysicalTagTemp <<

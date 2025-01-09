@@ -137,6 +137,12 @@ int TPZFYsmpMatrix<TVar>::PutVal(const int64_t row, const int64_t col, const TVa
     if(!flag) 
     {
 		cout << "TPZFYsmpMatrix::PutVal: Non existing position on sparse matrix: line = " << row << " column " << col << endl;
+		std::cout << "Columns registered ";
+		for(k=fIA[row];k<fIA[row+1];k++){
+			std::cout << fJA[k] << " ";
+		}
+		std::cout << std::endl;
+
 		DebugStop();
 		return 0;
     }
