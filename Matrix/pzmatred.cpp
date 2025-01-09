@@ -170,6 +170,7 @@ template<class TVar, class TSideMatrix>
 void TPZMatRed<TVar,TSideMatrix>::SetSolver(TPZAutoPointer<TPZMatrixSolver<TVar> > solver)
 {
 	fK00=solver->Matrix();
+    if(fK00->Rows() != fDim0) DebugStop();
 	fSolver = solver;
     this->fSymProp = fK00->GetSymmetry();
 }
