@@ -162,7 +162,7 @@ template<class TVar>
 void TPZL2ProjectionCS<TVar>::Solution(const TPZVec<TPZMaterialDataT<TVar>> &datavec,
                                      int var, TPZVec<TVar> &solOut)
 {   
-    TPZMaterialDataT data = datavec[0];
+    TPZMaterialDataT data = datavec[1];
     const auto &sol = data.sol[0];
     const auto &dsol = data.dsol[0];
 	if (var == ESolution){
