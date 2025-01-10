@@ -464,17 +464,8 @@ int TPZAcademicGeoMesh::AddBoundaryElements(TPZGeoMesh *gmesh)
                 continue;
             }
             TPZManVector<REAL,2> xi(2,0.);
-            //gelside.CenterPoint(xi);
-            TPZFNMatrix<6,REAL> axes(2,3);
-            TPZFNMatrix<4,REAL> jac(2,2),jacinv(2,2);
-            REAL detjac;
-            gelside.Jacobian(xi, jac, axes, detjac, jacinv);
-            TPZManVector<REAL,3> x(3,0.);
-            //gelside.X(xi, x);
             TPZManVector<REAL,3> normal(3);
-            normal[0] = axes(0,1)*axes(1,2)-axes(0,2)*axes(1,1);
-            normal[1] = -axes(0,0)*axes(1,2)+axes(0,2)*axes(1,0);
-            normal[2] = axes(0,0)*axes(1,1)-axes(0,1)*axes(1,0);
+            gelside.Normal(xi, normal);
             REAL tol = 1.e-6;
             REAL xmin = 1., xmax = 0.;
             int numfound = 0;

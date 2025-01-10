@@ -101,8 +101,8 @@ int main(){
 void buildProblem(std::vector<T>& coefficients, Eigen::VectorXd& b, int n)
 {
 #ifndef RUNWITHMAIN
-    std::random_device rd; // obtain a random number from hardware
-    std::mt19937 gen(rd()); // seed the generator
+    // std::random_device rd; // obtain a random number from hardware
+    // std::mt19937 gen(rd()); // seed the generator
     std::uniform_int_distribution<> distr(25, 63); // define the range
     for(int i = 0; i<n; i++) {
         double sum = 0, sumabs = 0.;
@@ -191,9 +191,9 @@ void AccelerateSparse()
 void TestSparseClass() {
 #ifdef PZ_USING_EIGEN
     const int64_t nrows = 2;
-    int64_t ia[] = {0,1,3};
-    int64_t ja[] = {0,0,1};
-    STATE val[] = {1.,0.,2.};
+    TPZVec<int64_t> ia = {0,1,3};
+    TPZVec<int64_t> ja = {0,0,1};
+    TPZVec<STATE> val = {1.,0.,2.};
 
     TPZFMatrix<STATE> F(nrows,1);
     F(0,0) = 1.;
@@ -202,7 +202,7 @@ void TestSparseClass() {
     
     TPZEigenSparseMatrix<STATE> spmat(nrows,nrows);
     spmat.SetData(ia, ja, val);
-    const DecomposeType dt = ECholesky;
+    const DecomposeType dt = ELDLt;
     spmat.Decompose(dt);
     spmat.SolveDirect(F, dt);
     std::cout << "solution " << F << std::endl;
@@ -217,15 +217,15 @@ void TestSparseClass() {
 void TestH1Problem() {
     
     const int volid = 1, bcid = -1;
-    const int ndiv = 5;
+    const int ndiv = 4;
     const int dim = 3;
-    const int pOrder = 2;
+    const int pOrder = 1;
     TPZVec<int> nDivs;
     if(dim == 2) nDivs = {ndiv,ndiv};
     else nDivs = {ndiv,ndiv,ndiv};
     TPZGeoMesh* gmesh = CreateGeoMesh(dim,nDivs,volid,bcid);
     TPZCompMesh* cmesh = CreateCMeshH1(gmesh,pOrder,volid,bcid);
-    
+    //cmesh->Print(std::cout);
     // ========> Solve H1
     TPZLinearAnalysis an(cmesh,RenumType::EDefault);
     constexpr int nThreads{16};
@@ -233,7 +233,7 @@ void TestH1Problem() {
     
     const bool useSparse = true;
     if(useSparse){
-        matstruct = new TPZSpStructMatrix<STATE>(cmesh);
+        matstruct = new TPZSSpStructMatrix<STATE>(cmesh);
     }
     else{
         matstruct = new TPZSkylineStructMatrix<STATE>(cmesh);

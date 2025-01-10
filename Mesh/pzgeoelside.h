@@ -273,6 +273,8 @@ public:
 	 * @note Third improved version */
 	void SideTransform3(TPZGeoElSide neighbour,TPZTransform<> &t);
 	
+	/// @brief Insert neighbour in the connectivity loop
+	/// @param neighbour will be my direct neighbour
 	void SetConnectivity(const TPZGeoElSide &neighbour) const;
     
 	/** @brief This method inserts the element/side and all lowerdimension sides into the connectivity loop */
@@ -285,6 +287,7 @@ public:
     void InsertConnectivity(TPZGeoElSide &neighbour, const TPZVec<int> &mapsides);
 
     /// Remove the element/side from the connectivity loop
+	// the neighbour of the element/side will be undefined
 	void RemoveConnectivity();
 	
 	static void BuildConnectivities(TPZVec<TPZGeoElSide> &elvec, TPZVec<TPZGeoElSide> &neighvec);

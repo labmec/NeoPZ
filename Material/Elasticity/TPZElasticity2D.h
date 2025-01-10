@@ -22,6 +22,7 @@ class TPZElasticity2D : public TPZMatBase<STATE,
                                           TPZMatErrorSingleSpace<STATE>,
                                           TPZMatLoadCases<STATE>>
 {
+public:
     using TBase = TPZMatBase<STATE,
                              TPZMatSingleSpaceT<STATE>,
                              TPZMatErrorSingleSpace<STATE>,
@@ -42,6 +43,15 @@ public :
 	TPZElasticity2D(int id, STATE E, STATE nu, STATE fx, STATE fy, int planestress = 1);
     
     TPZElasticity2D(int id);
+
+    TPZElasticity2D(const TPZElasticity2D &copy) : TBase(copy), fE_def(copy.fE_def), fnu_def(copy.fnu_def),
+    fElasticity(copy.fElasticity), ff(copy.ff), fEover21PlusNu_def(copy.fEover21PlusNu_def),
+    fEover1MinNu2_def(copy.fEover1MinNu2_def), fPreStressXX(copy.fPreStressXX),
+    fPreStressYY(copy.fPreStressYY), fPreStressXY(copy.fPreStressXY), fPreStressZZ(copy.fPreStressZZ),
+    fPlaneStress(copy.fPlaneStress)
+    {
+        
+    }
 
     /** @name Elasticity */
     /** @brief Set elasticity parameters */

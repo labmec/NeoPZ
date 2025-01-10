@@ -31,7 +31,7 @@ using namespace std;
 
 template<class TVar>
 TPZEigenSparseMatrix<TVar>::TPZEigenSparseMatrix() : TPZRegisterClassId(&TPZEigenSparseMatrix::ClassId),
-TPZFYsmpMatrix<TVar>()
+TPZSYsmpMatrix<TVar>()
 {
 }
 
@@ -41,7 +41,7 @@ TPZFYsmpMatrix<TVar>()
 
 template<class TVar>
 TPZEigenSparseMatrix<TVar>::TPZEigenSparseMatrix(const int64_t rows,const int64_t cols ) :
-TPZRegisterClassId(&TPZEigenSparseMatrix::ClassId),TPZFYsmpMatrix<TVar>(rows,cols) {
+TPZRegisterClassId(&TPZEigenSparseMatrix::ClassId),TPZSYsmpMatrix<TVar>(rows,cols) {
 #ifdef CONSTRUCTOR
 	cerr << "TPZEigenSparseMatrix(int rows,int cols)\n";
 #endif
@@ -151,7 +151,7 @@ TPZMatrix<TVar> &TPZEigenSparseMatrix<TVar>::operator*=(const TVar val)
 template<class TVar>
 void TPZEigenSparseMatrix<TVar>::Print(const char *title, ostream &out ,const MatrixOutputFormat form) const {
 	// Print the matrix along with a identification title
-    TPZFYsmpMatrix<TVar>::Print(title,out,form);
+    TPZSYsmpMatrix<TVar>::Print(title,out,form);
 }
 
 
@@ -199,7 +199,10 @@ int TPZEigenSparseMatrix<TVar>::Decompose(const DecomposeType dt)
         fCholesky = new EigenCholesky(*fEigenMatrix);        
         fCholesky->analyzePattern(*fEigenMatrix);
         fCholesky->factorize(*fEigenMatrix);
+        #else
+        DebugStop();
 #endif
+
     }
     else if(dt == ELDLt) {
 #if defined(MACOSX) && defined(USEACCELERATESUPPORT)
@@ -220,6 +223,8 @@ int TPZEigenSparseMatrix<TVar>::Decompose(const DecomposeType dt)
     else {
         DebugStop();
     }
+    this->SetIsDecomposed(dt);
+    return 0;
 }
 /**
  * @brief Solves the linear system using Direct methods
@@ -230,7 +235,6 @@ template<class TVar>
 int TPZEigenSparseMatrix<TVar>::SolveDirect ( TPZFMatrix<TVar>& F , const DecomposeType dt)
 {
     Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > b(&F(0,0),F.Rows());
-    
     if(dt == ECholesky) {
         if(fLDLT || fLU) DebugStop();
         if(!fCholesky) Decompose(dt);
@@ -239,6 +243,8 @@ int TPZEigenSparseMatrix<TVar>::SolveDirect ( TPZFMatrix<TVar>& F , const Decomp
     else if(dt == ELDLt) {
         if(fCholesky || fLU) DebugStop();
         if(!fLDLT) Decompose(dt);
+        using namespace Eigen;
+        // SimplicialLDLT<SparseMatrix<double,0,int64_t> > *solver = fLDLT;
         b = fLDLT->solve(b);
     }
     else if(dt == ELU) {
@@ -249,28 +255,32 @@ int TPZEigenSparseMatrix<TVar>::SolveDirect ( TPZFMatrix<TVar>& F , const Decomp
     else{
         DebugStop();
     }
+    return 0;
 }
 
 template<class TVar>
 int TPZEigenSparseMatrix<TVar>::SolveDirect ( TPZFMatrix<TVar>& F , const DecomposeType dt) const
 {
-    Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > b(&F(0,0),F.Rows());
-    
-    if(fCholesky) {
-        if(dt != ECholesky) DebugStop();
-        b = fCholesky->solve(b);
-    }
-    else if(fLDLT) {
-        if(dt != ELDLt) DebugStop();
-        b = fLDLT->solve(b);
-    }
-    else if(fLU) {
-        if(dt != ELU) DebugStop();
-        b = fLU->solve(b);
-    }
-    else{
-        DebugStop();
-    }
+    // const Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > b(&F(0,0),F.Rows());
+    // Eigen::Map<Eigen::Matrix<TVar,Eigen::Dynamic,1>  > bres(&F(0,0),F.Rows());
+
+    // if(fCholesky) {
+    //     if(dt != ECholesky) DebugStop();
+    //     b = fCholesky->solve(b);
+    // }
+    // else if(fLDLT) {
+    //     if(dt != ELDLt) DebugStop();
+    //     b = fLDLT->solve(b);
+    // }
+    // else if(fLU) {
+    //     if(dt != ELU) DebugStop();
+    //     b = fLU->solve(b);
+    // }
+    // else{
+    //     DebugStop();
+    // }
+    DebugStop();
+    return 0;
 }
 
 template<class TVar>
@@ -311,15 +321,15 @@ void TPZEigenSparseMatrix<TVar>::MultAdd(const TPZFMatrix<TVar> &x,const TPZFMat
 
 template<class TVar>
 int TPZEigenSparseMatrix<TVar>::ClassId() const{
-    return Hash("TPZEigenSparseMatrix") ^ TPZFYsmpMatrix<TVar>::ClassId() << 1;
+    return Hash("TPZEigenSparseMatrix") ^ TPZSYsmpMatrix<TVar>::ClassId() << 1;
 }
 
 template class TPZEigenSparseMatrix<double>;
 template class TPZEigenSparseMatrix<float>;
 
-#ifndef USEACCELERATESUPPORT
+// #ifndef USEACCELERATESUPPORT
 template class TPZEigenSparseMatrix<long double>;
 template class TPZEigenSparseMatrix<std::complex<long double>>;
 template class TPZEigenSparseMatrix<std::complex<double>>;
 template class TPZEigenSparseMatrix<std::complex<float>>;
-#endif
+// #endif

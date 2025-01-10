@@ -619,11 +619,11 @@ protected:
   virtual void CheckTypeCompatibility(const TPZMatrix<TVar>*A,
                                       const TPZMatrix<TVar>*B)const;
   /** @brief Number of entries storaged in the Matrix*/
-  virtual int64_t Size() const = 0;
+  virtual int64_t Size() const {DebugStop(); return -1;}
   /** @{ */
   /** @brief Pointer to the beginning of the storage of the matrix*/
-  virtual TVar* &Elem() = 0;
-  virtual const TVar* Elem() const = 0;
+  virtual TVar* &Elem() { DebugStop(); static TVar* t{nullptr}; return t; }
+  virtual const TVar* Elem() const { DebugStop(); return nullptr;}
   /** @} */
 	/**
 	 * @brief Is an auxiliar method used by MultiplyAdd
