@@ -235,8 +235,11 @@ void TPZAnalysis::SetCompMeshInit(TPZCompMesh *mesh, bool mustOptimizeBandwidth)
             std::cout << __PRETTY_FUNCTION__ << " optimizing bandwidth finished\n";
             std::cout.flush();
         }
-        fSolution = fCompMesh->Solution();
-        fSolution.Resize(neq,1);
+        // fSolution = fCompMesh->Solution();
+        // fSolution.Resize(neq,1);
+
+        int nsols = fCompMesh->Solution().Cols();
+        fSolution.Redim(neq,nsols);
     }
     else
     {
