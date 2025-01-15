@@ -612,7 +612,7 @@ TPZGeoEl * ChangeToCylinderT(TPZGeoMesh *mesh, const int64_t ElemIndex,
             const auto normdiff = fabs(Norm(x_orth)-radius);
             if(normdiff > 1e-10){
                 PZError<<__PRETTY_FUNCTION__
-                       <<"\nComputed radius: "<<Norm(xnode-xcenter)
+                       <<"\nComputed radius: "<<Norm(x_orth)
                        <<"\nGiven radius: "<<radius
                        <<"\nElement index: "<<ElemIndex
                        <<std::endl;
