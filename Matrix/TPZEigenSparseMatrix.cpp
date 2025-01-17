@@ -241,7 +241,7 @@ int TPZEigenSparseMatrix<TVar>::SolveDirect ( TPZFMatrix<TVar>& F , const Decomp
         if(fCholesky || fLU) DebugStop();
         if(!fLDLT) Decompose(dt);
         using namespace Eigen;
-        SimplicialLDLT<SparseMatrix<double,0,int64_t> > *solver = fLDLT;
+        //SimplicialLDLT<SparseMatrix<double,0,int64_t> > *solver = fLDLT;
         b = fLDLT->solve(b);
     }
     else if(dt == ELU) {
