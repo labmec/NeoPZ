@@ -457,6 +457,7 @@ TPZCompMesh * TPZHDivApproxCreator::CreateL2Space(int pOrder, const int lagLevel
     switch (fHDivFam)
     {
     case HDivFamily::EHDivStandard:
+    case HDivFamily::EHDivOptimized:
         if (pOrder > 0){
             cmesh->SetDefaultOrder(pOrder);
             cmesh->SetAllCreateFunctionsContinuous();

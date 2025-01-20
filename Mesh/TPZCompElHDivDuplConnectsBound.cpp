@@ -2,6 +2,7 @@
 #include "TPZMaterial.h"
 #include "TPZShapeHDiv.h"
 #include "TPZShapeHDivConstantBound.h"
+#include "TPZShapeHDivOptimized.h"
 #include "pzlog.h"
 #include "pzcmesh.h"
 #include <sstream>
@@ -77,6 +78,7 @@ int TPZCompElHDivDuplConnectsBound<TSHAPE>::NConnectShapeF(int connect, int conn
         }    
         break;
     case HDivFamily::EHDivConstant:
+    case HDivFamily::EHDivOptimized:
         {
             int conCorrect = connect/2;
             int res = connect % 2;
