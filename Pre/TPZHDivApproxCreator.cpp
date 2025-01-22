@@ -554,7 +554,7 @@ TPZMultiphysicsCompMesh * TPZHDivApproxCreator::CreateMultiphysicsSpace(const TP
         cmesh->InsertMaterialObject(nullmatLag);
     }
 
-    TPZManVector<int> active(meshvec.size(),1);
+    TPZManVector<MSpaceConfig> active(meshvec.size(),ETestTrial);
     cmesh->ApproxSpace().Style() = TPZCreateApproximationSpace::EMultiphysics;
     cmesh->BuildMultiphysicsSpace(active, meshvec);
     

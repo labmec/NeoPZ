@@ -160,7 +160,7 @@ TPZMultiphysicsCompMesh * TPZH1ApproxCreator::CreateMultiphysicsSpace(TPZManVect
     if(isHybrid)
         InsertWrapAndLagrangeMaterialObjects(cmesh);
 
-    TPZManVector<int> active(fNumMeshes,1);
+    TPZManVector<MSpaceConfig> active(fNumMeshes,ETestTrial);
     cmesh->ApproxSpace().Style() = TPZCreateApproximationSpace::EMultiphysics;
     cmesh->BuildMultiphysicsSpace(active, meshvec);
 

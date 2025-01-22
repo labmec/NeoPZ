@@ -19,7 +19,7 @@ class TPZMultiphysicsCompMesh : public TPZCompMesh {
     /// Vector of active physics: index vector
     /// Define wich space will be active in order to generate equations. Should be defined for each space that you want to use by 0: no active or 1: active
     ///The size have to be the same as the m_mesh_vector
-    TPZManVector<int,5> m_active_approx_spaces;
+    TPZManVector<MSpaceConfig, 7> m_active_approx_spaces;
     
     /// Vector of computational meshes
     TPZManVector<TPZCompMesh * , 7> m_mesh_vector;
@@ -49,7 +49,7 @@ public:
     
     /// Set active approximation spaces
     // active_approx_spaces : vector of the size of mesh_vector containing value 0 or 1
-    void BuildMultiphysicsSpace(TPZVec<int> & active_approx_spaces, const TPZVec<TPZCompMesh * > & mesh_vector);
+    void BuildMultiphysicsSpace(TPZVec<MSpaceConfig> & active_approx_spaces, const TPZVec<TPZCompMesh * > & mesh_vector);
     
     /// Set active approximation spaces
     void BuildMultiphysicsSpace(TPZVec<TPZCompMesh * > & mesh_vector);
@@ -58,8 +58,8 @@ public:
     void BuildMultiphysicsSpace(TPZVec<TPZCompMesh * > & mesh_vector, const TPZVec<int64_t> &gelindexes);
     
     /// Set active approximation spaces
-    void BuildMultiphysicsSpaceWithMemory(TPZVec<int> & active_approx_spaces, TPZVec<TPZCompMesh * > & mesh_vector);
-    void BuildMultiphysicsSpaceWithMemory(TPZVec<int> & active_approx_spaces, TPZVec<TPZCompMesh * > & mesh_vector, std::set<int> matsIdWithMem, std::set<int> matsIdNoMem);
+    void BuildMultiphysicsSpaceWithMemory(TPZVec<MSpaceConfig> & active_approx_spaces, TPZVec<TPZCompMesh * > & mesh_vector);
+    void BuildMultiphysicsSpaceWithMemory(TPZVec<MSpaceConfig> & active_approx_spaces, TPZVec<TPZCompMesh * > & mesh_vector, std::set<int> matsIdWithMem, std::set<int> matsIdNoMem);
     
     void LoadSolutionFromMeshes();
     
@@ -69,7 +69,7 @@ public:
     TPZVec<TPZCompMesh *> & MeshVector();
     
     /// Get the vector of active physics
-    TPZVec<int> & GetActiveApproximationSpaces();
+    TPZVec<MSpaceConfig> & GetActiveApproximationSpaces();
     
 private:
     /// add the elements from the atomic meshes to the multiphysics elements

@@ -32,7 +32,7 @@ void TPZNullMaterial<TVar>::Read(TPZStream &buf, void *context) {
 template<class TVar>
 void TPZNullMaterial<TVar>::FillDataRequirements(TPZMaterialData& data) const{
     data.SetAllRequirements(false);
-    data.fActiveApproxSpace = false;
+    data.fActiveApproxSpace = ENotActive;
 }
 
 template<class TVar>

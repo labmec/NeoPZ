@@ -131,8 +131,10 @@ void TPZMixedPoisson::Contribute(TPZVec<TPZMaterialData> &datavec, REAL weight, 
 	
     int nactive = 0;
     for (int i=0; i<datavec.size(); i++) {
-        if (datavec[i].fActiveApproxSpace) {
+        if (datavec[i].fActiveApproxSpace == ETestTrial) {
             nactive++;
+        } else if(datavec[i].fActiveApproxSpace != ENotActive) {
+            DebugStop();
         }
     }
 #ifdef PZDEBUG

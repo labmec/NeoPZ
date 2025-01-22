@@ -64,8 +64,10 @@ void TPZMixedDarcyFlow::Contribute(const TPZVec<TPZMaterialDataT<STATE>> &datave
 
     int nactive = 0;
     for (const auto &i : datavec) {
-        if (i.fActiveApproxSpace) {
+        if (i.fActiveApproxSpace == ETestTrial) {
             nactive++;
+        } else if(i.fActiveApproxSpace != ENotActive) {
+            DebugStop();
         }
     }
 #ifdef PZDEBUG

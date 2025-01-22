@@ -712,13 +712,13 @@ void TPZMultiphysicsCompEl<TGeometry>::InitMaterialDataT(TPZVec<TPZMaterialDataT
     
     int n_active_approx_spaces = fActiveApproxSpace.size();
     if (n_active_approx_spaces == 0) { /// it preserves the integrity for old version of multiphycis codes.
-        fActiveApproxSpace.Resize(nref, 1);
+        fActiveApproxSpace.Resize(nref, ETestTrial);
     }
     
     for (int64_t iref = 0; iref < nref; iref++) {
         dataVec[iref].fActiveApproxSpace = fActiveApproxSpace[iref];
 		if(!fElementVec[iref].Element()){
-			dataVec[iref].fActiveApproxSpace = 0;
+			dataVec[iref].fActiveApproxSpace = ENotActive;
 		}
     }
     auto * mat =
@@ -774,7 +774,7 @@ void TPZMultiphysicsCompEl<TGeometry>::InitMaterialDataT(std::map<int, TPZMateri
     
     int n_active_approx_spaces = fActiveApproxSpace.size();
     if (n_active_approx_spaces == 0) { /// it preserves the integrity for old version of multiphycis codes.
-        fActiveApproxSpace.Resize(nref, 1);
+        fActiveApproxSpace.Resize(nref, ETestTrial);
     }
     
     for (auto &it : dataVec) {
@@ -1144,7 +1144,7 @@ void TPZMultiphysicsCompEl<TGeometry>::InitializeIntegrationRule()
     TPZStack<int> ordervec;
     for (int64_t iref=0;  iref<nref; iref++)
     {
-        if(fActiveApproxSpace[iref] == 0){
+        if(fActiveApproxSpace[iref] == ENotActive){
             continue;
         }
         TPZInterpolationSpace *msp  = dynamic_cast <TPZInterpolationSpace *>(fElementVec[iref].Element());

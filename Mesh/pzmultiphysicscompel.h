@@ -181,7 +181,7 @@ public:
 		if (fElementVec.size() <= meshindex) 
 		{
 			fElementVec.resize(meshindex+1);
-            fActiveApproxSpace.Resize(meshindex+1, 1);
+            fActiveApproxSpace.Resize(meshindex+1, ETestTrial);
 		}
         if (cel)
         {
@@ -201,7 +201,7 @@ public:
         if (fElementVec.size() <= meshindex)
         {
             fElementVec.resize(meshindex+1);
-            fActiveApproxSpace.Resize(meshindex+1, 1);
+            fActiveApproxSpace.Resize(meshindex+1, ETestTrial);
         }
         fElementVec[meshindex] = celside;
     }

@@ -121,7 +121,7 @@ void TPZMaterialData::Write(TPZStream &buf, int withclassid) const
     buf.Write(fNeedsNeighborCenter);
     buf.Write(fNeedsNormal);
     buf.Write(fNeedsDeformedDirectionsFad);
-    buf.Write(fActiveApproxSpace);
+    buf.Write((int)fActiveApproxSpace);
 }
     
 void TPZMaterialData::Read(TPZStream &buf, void *context)
@@ -132,5 +132,7 @@ void TPZMaterialData::Read(TPZStream &buf, void *context)
     buf.Read(fNeedsNeighborCenter);
     buf.Read(fNeedsNormal);
     buf.Read(fNeedsDeformedDirectionsFad);
-    buf.Read(fActiveApproxSpace);
+    int64_t active;
+    buf.Read(&active);
+    fActiveApproxSpace = (MSpaceConfig) active;
 }

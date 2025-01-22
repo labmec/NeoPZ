@@ -1508,8 +1508,7 @@ void TPZMHMeshControl::SubStructure()
             LOGPZ_DEBUG(logger, sout.str())
         }
 #endif
-        TPZAutoPointer<TPZGuiInterface> guiInterface;
-        submesh->SetAnalysisSkyline(numthreads, preconditioned, guiInterface);
+        submesh->SetAnalysisSkyline(numthreads, preconditioned);
         itsub++;
     }
 

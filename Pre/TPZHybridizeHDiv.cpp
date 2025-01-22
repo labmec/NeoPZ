@@ -632,7 +632,7 @@ TPZCompMesh * TPZHybridizeHDiv::CreateMultiphysicsMesh(TPZMultiphysicsCompMesh *
     cmesh_HDiv->CopyMaterials(*cmesh_Hybrid);
     InsertPeriferalMaterialObjects(cmesh_Hybrid, Lagrange_term_multiplier);
 
-    TPZManVector<int,5> active(meshvec_Hybrid.size(),1);
+    TPZManVector<MSpaceConfig,5> active(meshvec_Hybrid.size(),ETestTrial);
     cmesh_Hybrid->BuildMultiphysicsSpace(active, meshvec_Hybrid);
     return cmesh_Hybrid;
 }
@@ -643,7 +643,7 @@ void TPZHybridizeHDiv::ReCreateMultiphysicsMesh(TPZMultiphysicsCompMesh *cmesh_H
     TPZManVector<TPZCompMesh *, 5> meshvec_Hybrid = cmesh_HDiv->MeshVector();
     InsertPeriferalMaterialObjects(cmesh_HDiv, Lagrange_term_multiplier);
     InsertPeriferalMaterialObjects(meshvec_Hybrid);
-    TPZManVector<int> active = cmesh_HDiv->GetActiveApproximationSpaces();
+    TPZManVector<MSpaceConfig> active = cmesh_HDiv->GetActiveApproximationSpaces();
     HybridizeInternalSides(meshvec_Hybrid);
     cmesh_HDiv->BuildMultiphysicsSpace(active, meshvec_Hybrid);
 

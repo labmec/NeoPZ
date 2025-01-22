@@ -62,18 +62,18 @@ TPZVec<TPZCompMesh *> & TPZMultiphysicsCompMesh::MeshVector() {
     return  m_mesh_vector;
 }
 
-TPZVec<int> &  TPZMultiphysicsCompMesh::GetActiveApproximationSpaces(){
+TPZVec<MSpaceConfig> &  TPZMultiphysicsCompMesh::GetActiveApproximationSpaces(){
     return m_active_approx_spaces;
 }
 
 /// Set active approximation spaces
 void TPZMultiphysicsCompMesh::BuildMultiphysicsSpace(TPZVec<TPZCompMesh * > & mesh_vector)
 {
-    TPZManVector<int> active(mesh_vector.size(),1);
+    TPZManVector<MSpaceConfig> active(mesh_vector.size(),ETestTrial);
     BuildMultiphysicsSpace(active,mesh_vector);
 }
 
-void TPZMultiphysicsCompMesh::BuildMultiphysicsSpace(TPZVec<int> & active_approx_spaces, const TPZVec<TPZCompMesh * > & mesh_vector){
+void TPZMultiphysicsCompMesh::BuildMultiphysicsSpace(TPZVec<MSpaceConfig> & active_approx_spaces, const TPZVec<TPZCompMesh * > & mesh_vector){
 
     m_active_approx_spaces = active_approx_spaces;
     m_mesh_vector          = mesh_vector;
@@ -107,7 +107,7 @@ void TPZMultiphysicsCompMesh::BuildMultiphysicsSpace(TPZVec<int> & active_approx
     CleanUpUnconnectedNodes();
 }
 
-void TPZMultiphysicsCompMesh::BuildMultiphysicsSpaceWithMemory(TPZVec<int> & active_approx_spaces, TPZVec<TPZCompMesh * > & mesh_vector){
+void TPZMultiphysicsCompMesh::BuildMultiphysicsSpaceWithMemory(TPZVec<MSpaceConfig> & active_approx_spaces, TPZVec<TPZCompMesh * > & mesh_vector){
     m_active_approx_spaces = active_approx_spaces;
     m_mesh_vector          = mesh_vector;
     if (m_mesh_vector.size() != m_active_approx_spaces.size()) {
@@ -139,7 +139,7 @@ void TPZMultiphysicsCompMesh::BuildMultiphysicsSpaceWithMemory(TPZVec<int> & act
     }
     
 }
-void TPZMultiphysicsCompMesh::BuildMultiphysicsSpaceWithMemory(TPZVec<int> & active_approx_spaces, TPZVec<TPZCompMesh * > & mesh_vector, std::set<int> matsIdWithMem, std::set<int> matsIdNoMem){
+void TPZMultiphysicsCompMesh::BuildMultiphysicsSpaceWithMemory(TPZVec<MSpaceConfig> & active_approx_spaces, TPZVec<TPZCompMesh * > & mesh_vector, std::set<int> matsIdWithMem, std::set<int> matsIdNoMem){
     m_active_approx_spaces = active_approx_spaces;
     m_mesh_vector          = mesh_vector;
     if (m_mesh_vector.size() != m_active_approx_spaces.size()) {
@@ -179,7 +179,7 @@ void TPZMultiphysicsCompMesh::BuildMultiphysicsSpace(TPZVec<TPZCompMesh * > & me
     
     m_mesh_vector          = mesh_vector;
     m_active_approx_spaces.Resize(m_mesh_vector.size());
-    for(int64_t i = 0; i< m_active_approx_spaces.size(); i++) m_active_approx_spaces[i] = 1;
+    for(int64_t i = 0; i< m_active_approx_spaces.size(); i++) m_active_approx_spaces[i] = ETestTrial;
     int n_approx_spaces = m_mesh_vector.size();
     SetNMeshes(n_approx_spaces);
     Reference()->ResetReference();

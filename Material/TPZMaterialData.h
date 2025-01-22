@@ -10,6 +10,9 @@
 #include "pzfmatrix.h"
 #include "TPZShapeData.h"
 
+/// @brief Determine the type of contribution to the stiffness matrix
+enum MSpaceConfig {ENotActive, ETestTrial, ETest, ETrial};
+
 /**
  * @ingroup material
  * @brief This class implements a type-agnostic interface between TPZCompEl::CalcStiff and Contribute methods of the materials. \n
@@ -80,7 +83,7 @@ public:
     /** Whether the normal vector is needed for computing the FEM matrix */
     bool fNeedsNormal{false};
     /** Whether the material has an active approximation space. */
-    bool fActiveApproxSpace{true};
+    MSpaceConfig fActiveApproxSpace{ETestTrial};
     /** @} */
     
     /** @name Data

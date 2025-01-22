@@ -32,7 +32,7 @@ template<class TVar>
 void TPZNullMaterialCS<TVar>::FillDataRequirements(TPZVec<TPZMaterialDataT<TVar>> &datavec) const {
     for (auto i = 0; i < datavec.size(); i++) {
         datavec[i].SetAllRequirements(false);
-        datavec[i].fActiveApproxSpace = false;
+        datavec[i].fActiveApproxSpace = ENotActive;
     }
 }
 
