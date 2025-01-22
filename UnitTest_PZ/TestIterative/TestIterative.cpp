@@ -100,7 +100,7 @@ TEST_CASE("Poisson equation","[iterative_testss]") {
     TPZAutoPointer<TPZMatrix<STATE>> mtrxcp = solver->Matrix()->Clone();
     //we use a direct solver as a precond
     TPZStepSolver<STATE> pre(mtrxcp);
-    pre.SetDirect(ECholesky);
+    pre.SetDirect(ELDLt);
     solver->SetGMRES(testiterative::niter,
                      testiterative::niter, pre,
                      testiterative::tol, fromCurrent);
@@ -169,7 +169,7 @@ TEST_CASE("Equation filter and precond","[iterative_testss]") {
     TPZAutoPointer<TPZMatrix<STATE>> mtrxcp = solver->Matrix()->Clone();
     //we use a direct solver as a precond
     TPZStepSolver<STATE> pre(mtrxcp);
-    pre.SetDirect(ECholesky);
+    pre.SetDirect(ELDLt);
     solver->SetGMRES(testiterative::niter, testiterative::niter, pre,
                      testiterative::tol, fromCurrent);
     an.Solve();
