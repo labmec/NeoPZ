@@ -751,7 +751,7 @@ TPZMultiphysicsCompMesh *MultiphysicCMesh(int dim, int pOrder, TPZVec<TPZCompMes
     }
     
     // ===> Build space
-    TPZManVector<int> active(2,1);
+    TPZManVector<MSpaceConfig> active(2,ETestTrial);
     cmesh->ApproxSpace().Style() = TPZCreateApproximationSpace::EMultiphysics;
     cmesh->BuildMultiphysicsSpace(active, meshvector);
     

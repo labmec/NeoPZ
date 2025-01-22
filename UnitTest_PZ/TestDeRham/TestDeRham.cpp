@@ -435,7 +435,7 @@ void CheckInclusion(int kRight)
     cmeshMF->SetDimModel(dim);
     cmeshMF->SetAllCreateFunctionsMultiphysicElem();
 
-    TPZManVector<int, 2> active_approx_spaces(2, 1);
+    TPZManVector<MSpaceConfig, 2> active_approx_spaces(2, ETestTrial);
     TPZManVector<TPZCompMesh *, 2> meshVec(2);
     meshVec[0] = cmeshL.operator->();
     meshVec[1] = cmeshR.operator->();

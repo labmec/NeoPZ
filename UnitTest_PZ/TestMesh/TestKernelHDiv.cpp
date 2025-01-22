@@ -412,9 +412,9 @@ TPZMultiphysicsCompMesh * CreateMultiphysicsCMesh(TPZGeoMesh *fGeoMesh, int fDim
     cmesh->InsertMaterialObject(matL2);
 
 
-    TPZManVector<int> active(2,1);
-    active[0]=1;
-    active[1]=1;
+    TPZManVector<MSpaceConfig> active(2,ETestTrial);
+    active[0]=ETestTrial;
+    active[1]=ETestTrial;
     cmesh->SetAllCreateFunctionsMultiphysicElem();
     cmesh->AdjustBoundaryElements();
     cmesh->CleanUpUnconnectedNodes();

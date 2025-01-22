@@ -34,7 +34,7 @@ TPZStructMatrix * TPZSpStructMatrix<TVar,TPar>::Clone(){
 template<class TVar, class TPar>
 void TPZSpStructMatrix<TVar,TPar>::EndCreateAssemble(TPZBaseMatrix * mat){
     auto spMat = dynamic_cast<TPZFYsmpMatrix<TVar> *>(mat);
-    spMat->ComputeDiagonal();
+    if(spMat) spMat->ComputeDiagonal();
 }
 
 template<class TVar, class TPar>

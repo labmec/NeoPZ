@@ -369,17 +369,17 @@ void TPZGradientReconstruction::TPZGradientData::Print(std::ostream &out) const
     char string[256];
     
     out<<"\n\n";
-    sprintf(string, "\t%s", name1);
+    snprintf(string, 256, "\t%s", name1);
     out << string ;
-    sprintf(string, "\t%s", name2);
+    snprintf(string, 256,"\t%s", name2);
     out << string ;
-    sprintf(string, "\t\t%s", name3);
+    snprintf(string, 256, "\t\t%s", name3);
     out << string ;
-    sprintf(string, "\t\t%s", name4);
+    snprintf(string, 256, "\t\t%s", name4);
     out << string ;
     out<<"\n";
     
-    sprintf(string, "%s", name5);
+    snprintf(string, 256, "%s", name5);
     out << string ;
     
     out << "\t" ;
@@ -388,7 +388,7 @@ void TPZGradientReconstruction::TPZGradientData::Print(std::ostream &out) const
     int i, j;
     out<<"\t(";
     for(j=0; j<3; j++ ){
-        sprintf(string, "%f", fCenterPointCellAndNeighbors[0][j]);
+        snprintf(string, 256, "%f", fCenterPointCellAndNeighbors[0][j]);
         out << string;
         if (j<2) out<<",";
     }
@@ -423,7 +423,7 @@ void TPZGradientReconstruction::TPZGradientData::Print(std::ostream &out) const
     {
         out<<"(";
         for(j=0; j<3; j++ ){
-            sprintf(string, "%f", fCenterPointInterface[i][j]);
+            snprintf(string, 256, "%f", fCenterPointInterface[i][j]);
             out << string;
             if (j<2) out<<",";
         }

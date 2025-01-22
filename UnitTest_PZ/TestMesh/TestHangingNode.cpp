@@ -391,7 +391,7 @@ TPZCompMesh * CreateCMeshHDiv(TPZGeoMesh* gmesh, int pOrder, const int volId, HD
     matL2->SetForcingFunction(forcefunction,4);
     cmesh->InsertMaterialObject(matL2);
 
-    TPZManVector<int> active(meshvector.size(),1);
+    TPZManVector<MSpaceConfig> active(meshvector.size(),ETestTrial);
     cmesh->SetAllCreateFunctionsMultiphysicElem();
     cmesh->BuildMultiphysicsSpace(active, meshvector);
     
