@@ -373,7 +373,7 @@ void TPZMixedDarcyFlow::Solution(const TPZVec<TPZMaterialDataT<STATE>> &datavec,
     if(SolP.size() == 0) SolP.Resize(1,0.);
 
     if (var == 1) { //function (state variable Q)
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < fDim; i++) {
             solOut[i] = datavec[0].sol[0][i];
 
         }
@@ -424,7 +424,7 @@ void TPZMixedDarcyFlow::Solution(const TPZVec<TPZMaterialDataT<STATE>> &datavec,
             fExactSol(datavec[0].x, exactSol, gradu);
         }
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < fDim; i++) {
             solOut[i] = -perm * gradu(i, 0);
         }
 
@@ -516,6 +516,15 @@ void TPZMixedDarcyFlow::Solution(const TPZVec<TPZMaterialDataT<STATE>> &datavec,
 
         return;
     }
+
+    if (var == 17) {
+        TPZVec<STATE> divsigma(1, 0.);
+        if (fForcingFunction) {
+            fForcingFunction(datavec[0].x, divsigma);
+        }
+        solOut[0] = divsigma[0];
+        return;
+    }
 }
 
 void TPZMixedDarcyFlow::Errors(const TPZVec<TPZMaterialDataT<STATE>> &data, TPZVec<REAL> &errors) {
@@ -600,6 +609,7 @@ int TPZMixedDarcyFlow::VariableIndex(const std::string &name) const {
     if (!strcmp("EstimatedError", name.c_str())) return 100;
     if (!strcmp("TrueError", name.c_str())) return 101;
     if (!strcmp("EffectivityIndex", name.c_str())) return 102;
+    if (!strcmp("ExactDivSigma", name.c_str())) return 17;
     DebugStop();
     return -1;
 }
@@ -620,9 +630,11 @@ int TPZMixedDarcyFlow::NSolutionVariables(int var) const {
     if (var == 14) return 1;
     if (var == 15) return 1;
     if (var == 16) return 3;
+    if (var == 17) return 1;
     if (var == 100) return 1;
     if (var == 101) return 1;
     if (var == 102) return 1;
+
     DebugStop();
     return -1;
 }
