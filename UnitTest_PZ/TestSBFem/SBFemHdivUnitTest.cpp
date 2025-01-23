@@ -170,7 +170,7 @@ TPZMultiphysicsCompMesh * SBFemTest::CreateCMeshMultiphysics(TPZAutoPointer<TPZG
   meshvector[0] = cmeshf;
   meshvector[1] = cmeshp;
 
-  TPZManVector<int> active(2,1);
+  TPZManVector<MSpaceConfig> active(2,ETestTrial);
   cmesh->BuildMultiphysicsSpace(active, meshvector);
   cmesh->LoadReferences();
   cmesh->CleanUpUnconnectedNodes();

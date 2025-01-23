@@ -222,7 +222,7 @@ void TPZBuildSBFemMultiphysics::BuildComputationalMeshFromSkeleton(TPZMultiphysi
     CreateSBFemMultiphysicsMesh(cmeshm,matidstarget);
     cmeshm.ApproxSpace().SetAllCreateFunctionsSBFemMultiphysics(dim);
     cmeshm.SetName("multiphysicssbfem");
-    TPZManVector<int> active(2,1);
+    TPZManVector<MSpaceConfig> active(2,ETestTrial);
     cmeshm.BuildMultiphysicsSpace(active, cmeshvec);
     cmeshm.LoadReferences();
     cmeshm.CleanUpUnconnectedNodes();
@@ -351,7 +351,7 @@ void TPZBuildSBFemMultiphysics::BuildMultiphysicsCompMesh(TPZMultiphysicsCompMes
     CreateSBFemMultiphysicsMesh(cmeshm,matidstarget);
     cmeshm.ApproxSpace().SetAllCreateFunctionsSBFemMultiphysics(dim);
     cmeshm.SetName("multiphysicssbfem");
-    TPZManVector<int> active(2,1);
+    TPZManVector<MSpaceConfig> active(2,ETestTrial);
     cmeshm.BuildMultiphysicsSpace(active, cmeshvec);
     cmeshm.LoadReferences();
     cmeshm.CleanUpUnconnectedNodes();

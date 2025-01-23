@@ -62,7 +62,7 @@ void TPZSBFemVolumeMultiphysics<TGeometry>::AddElement(TPZCompEl *cel, int64_t m
     if (fElementVec.size() <= meshindex) 
     {
         fElementVec.resize(meshindex+1);
-        TPZMultiphysicsElement::fActiveApproxSpace.Resize(meshindex+1, 1);
+        TPZMultiphysicsElement::fActiveApproxSpace.Resize(meshindex+1, ETestTrial);
     }
     if (cel)
     {
@@ -404,7 +404,7 @@ void TPZSBFemVolumeMultiphysics<TGeometry>::InitMaterialData(TPZVec<TPZMaterialD
     
     int n_active_approx_spaces = TPZMultiphysicsElement::fActiveApproxSpace.size();
     if (n_active_approx_spaces == 0) { /// it preserves the integrity for old version of multiphycis codes.
-        TPZMultiphysicsElement::fActiveApproxSpace.Resize(nref, 1);
+        TPZMultiphysicsElement::fActiveApproxSpace.Resize(nref, ETestTrial);
     }
     
     for (int64_t iref = 0; iref < nref; iref++) {
