@@ -47,6 +47,13 @@ public:
 	/** @brief Simple Destrutor */
 	virtual ~TPZBlock();
 	
+    /// Reset the data structure
+    void Reset() 
+    {
+        fBlock.Resize(0);
+        fpMatrix = nullptr;
+    }
+
 	/**
      * @brief Changes pointer to other
      * @param other New matrix to be pointed to
