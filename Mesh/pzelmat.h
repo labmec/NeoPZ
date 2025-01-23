@@ -11,7 +11,6 @@
 #include "pzfmatrix.h"
 #include "pzmanvector.h"
 #include "pzstack.h"
-#include "TPZOneShapeRestraint.h"
 
 
 class TPZBaseMatrix;
