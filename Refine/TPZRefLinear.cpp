@@ -127,7 +127,7 @@ namespace pzrefine {
 					gelside = gelside.Neighbour();
 				}
 			}
-			TPZVec<REAL> par(3,0.);
+			TPZVec<REAL> par(pztopology::TPZLine::Dimension,0.);
 			TPZVec<REAL> coord(3,0.);
 			if(side < TPZShapeLinear::NCornerNodes) {
 				index = gel->NodeIndex(side); 
