@@ -1102,3 +1102,26 @@ void TPZElasticity2D::Errors(const TPZMaterialDataT<STATE> &data,
     for(int i = 0; i < 2; i++) for(int j = 0; j < 2; j++) SemiH1 += (du(i,j) - du_exact(i,j)) * (du(i,j) - du_exact(i,j));
 	values[2] = values[1] + SemiH1;
 }
+
+    /// @brief Compute the constitutive matrix
+    /// @param D stress strain relation
+void TPZElasticity2D::ComputeDMatrix(REAL E, REAL nu, TPZFMatrix<STATE> &D) {
+
+
+    D.Zero();
+    if(fPlaneStress == 1) {
+        REAL scale = E/(1-nu*nu);
+        D(0,0) = scale;
+        D(1,1) = scale;
+        D(2,2) = scale * (1-nu)/2.;
+        D(0,1) = scale * nu;
+        D(1,0) = scale * nu;
+    } else {
+        REAL scale = E/((1+nu)*(1-2*nu));
+        D(0,0) = scale*(1-nu);
+        D(1,1) = scale*(1-nu);
+        D(2,2) = scale*(1-2*nu)/2.;
+        D(0,1) = scale*nu;
+        D(1,0) = scale*nu;
+    }
+}

@@ -109,7 +109,9 @@ public :
 	void SetPreStress(STATE Sigxx, STATE Sigyy, STATE Sigxy, STATE Sigzz);
        /**@}*/
     
-
+    /// @brief Compute the constitutive matrix
+    /// @param D stress strain relation
+    void ComputeDMatrix(REAL E, REAL nu, TPZFMatrix<STATE> &D);
 	/** @brief Returns the model dimension */
 	int Dimension() const  override { return 2;}
 	
